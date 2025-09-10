@@ -1,0 +1,436 @@
+/*		Default Layout: 992px. 
+		Gutters: 24px.
+		Outer margins: 48px.
+		Leftover space for scrollbars @1024px: 32px.
+-------------------------------------------------------------------------------
+cols    1     2      3      4      5      6      7      8      9      10
+px      68    160    252    344    436    528    620    712    804    896    */
+
+
+
+@media only screen and (min-width: 992px) and (max-width: 1261px){
+    .menu_two {
+    height: 79%;
+}
+.over {
+    transform: translateX(13px);
+}
+.Overview {
+    transform: translateX(-10px);
+}
+.overview_card{
+    padding: 20px 20px;
+    h3{
+        font-size: 25px;
+    }
+
+    .wrapper {
+        width: 70%;
+        margin-left: 17%;
+}
+}
+.growth_chart {
+    width: 96%;
+}
+.growth_card {
+    width: 97%;
+    margin: -40px 0px 32px 0;
+    display: flex;
+    gap: 10px;
+    margin-bottom: 100px;
+}
+.growth_card_sale {
+    width: 100%;
+    .wrapper {
+        margin-left: 36%;
+        width: 31%;
+        height: 100%;
+}
+}
+.trans {
+    width: 97%;
+}
+.customer {
+    padding: 63px;
+    margin: 32px 0px 32px 0;
+    width: 97%;
+    .sell-all-btn {
+        margin-left: 46%;
+}
+}
+.customer-list {
+    padding-left: 96px;
+}
+.profile {
+    width: 50px;
+    height: 50px;
+    margin-right: 55px;
+}
+.rank-badge img {
+    margin-right: 45px;
+}
+.rank {
+    margin-right: 45px;
+}
+
+}
+
+/*		Tablet Layout: 768px.
+		Gutters: 24px.
+		Outer margins: 28px.
+		Inherits styles from: Default Layout.
+-----------------------------------------------------------------
+cols    1     2      3      4      5      6      7      8
+px      68    160    252    344    436    528    620    712    */
+
+@media only screen and (min-width: 768px) and (max-width: 991px) {
+
+.header .logo {
+    border-right: none;
+    width: 102%;
+    padding: 16px;
+    justify-content: end;
+}
+.search_bar {
+    margin-left: 25% !important;
+    width: 100%;
+}
+.search_bar input {
+    background: none;
+}
+.overview_card {
+    margin-left: 58px;
+    margin-bottom: 50px;
+    .wrapper {
+        margin-left: 43%;
+}
+}
+
+.growth_section {
+    width: 96%;
+    /* transform: translateX(8%); */
+    transform: translate(8%, -7%);
+}
+.growth_card {
+    width: 133%;
+    display: flex;
+    transform: translate(-37%, 222%);
+}
+.growth_card_sale {
+    width: 82%;
+    transform: translate(76%, -287%);
+    margin-bottom: 40px;
+    margin-left: 19px;
+    .wrapper {
+        margin-left: 36%;
+}
+}
+.trans_section {
+    width: 96%;
+    margin-left: 6%;
+    transform: translateY(-9%);
+}
+.customer {
+    width: 100%;
+    padding: 50px;
+    transform: translateY(-33px);
+}
+.customer-list {
+    margin-left: 92px;
+}
+.profile {
+    width: 50px;
+    height: 50px;
+    margin-right: 47px;
+}
+.rank-badge img {
+    margin-right: 51px;
+}
+.rank {
+    margin-right: 54px;
+}
+.sell-all-btn {
+    margin-left: 42%;
+}
+
+
+
+
+
+
+/* Overlay style */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999; /* Under the sidebar (sidebar is 1000) */
+    display: none;
+}
+
+/* Show overlay when active */
+    .overlay.active {
+        display: block;
+    }
+
+
+.menu-btn {
+        display: block;
+    }
+
+    .side_bar .hidden{
+        position: fixed;
+        top: 0px;
+        left: -250px; /* Hidden */
+        width: 250px;
+        height: 100%;
+        background: #fff;
+        overflow-y: auto;
+        transition: left 0.3s ease;
+        z-index: 1000; /* Above overlay */
+    }
+
+    .side_bar .hidden.active {
+        left: 0; /* Slide in */
+    }
+
+    .side_bar .col-lg-9 {
+        width: 100%;
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+
+
+
+/*		Mobile Layout: 320px.
+		Gutters: 24px.
+		Outer margins: 34px.
+		Inherits styles from: Default Layout.
+---------------------------------------------
+cols    1     2      3
+px      68    160    252    */
+
+@media only screen and (max-width: 767px) {
+.header .logo {
+    border-right: none;
+    width: 102%;
+    padding: 16px;
+    justify-content: end;
+}
+.header h3 {
+    padding: 36px;
+}
+.search_bar {
+    margin: 5% !important;
+    transform: translateX(8%);
+}
+.overview_card {
+    padding: 56px 24px;
+    margin-left: 65px;
+    margin-bottom: 41px;
+}
+.wrapper {
+    margin-left: 37%;
+}
+.growth_section{
+	width: 92%;
+	margin-left: 47px;
+}
+.toggle-buttons{
+	.btn{
+		margin-left: 0px;
+    	/* margin-left: 30px; */
+	}
+	h3 {
+		font-size: 20px;
+		margin-right: 148px;
+	}
+}
+.toggle-buttons button {
+    margin-bottom: 6px;
+    margin-left: 10px;
+    padding: 5px 30px;
+}
+.growth_card {
+    width: 100%;
+    margin: -35px 0px 32px 0;
+	margin-left: -27px;
+}
+.growth_card_sale {
+    height: 43%;
+}
+.trans_section{
+	width: 92%;
+	margin-left: 47px;
+	margin-top: 89px;
+}
+.trans_header{
+	h3{
+		font-size: 20px;
+	}
+}
+.filters {
+    margin-left: 0px;
+}
+.search-bar input, .search-bar select, .search-bar button {
+    padding: 6px 20px;
+    width: 30%;
+}
+td {
+    font-size: 12px;
+    /* transform: translateX(-41px); */
+}
+.transaction{
+	margin-right: 2px;
+	span{
+		margin-left: 40px;
+	}
+}
+.status {
+	padding: 4px 7px;
+    font-size: 12px;
+    margin-left: 46px;
+}
+.customer{
+    width: 100%;
+    padding: 50px;
+	h3{
+		font-size: 20px;
+	}
+}
+.profile {
+    margin-left: 13px;
+}
+.customer-info{
+	margin-left: 20px;
+}
+.sell-all-btn {
+    margin-left: 42%;
+}
+
+
+
+
+	/* Overlay style */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999; /* Under the sidebar (sidebar is 1000) */
+    display: none;
+}
+
+/* Show overlay when active */
+    .overlay.active {
+        display: block;
+    }
+
+
+.menu-btn {
+        display: block;
+    }
+
+    .side_bar .hidden{
+        position: fixed;
+        top: 0px;
+        left: -250px; /* Hidden */
+        width: 250px;
+        height: 100%;
+        background: #fff;
+        overflow-y: auto;
+        transition: left 0.3s ease;
+        z-index: 1000; /* Above overlay */
+    }
+
+    .side_bar .hidden.active {
+        left: 0; /* Slide in */
+    }
+
+    .side_bar .col-lg-9 {
+        width: 100%;
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    /* slider in transaction part */
+    .table-responsive {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch; 
+    }
+
+    table {
+        min-width: 600px; 
+    }
+}
+
+
+
+
+/*		Wide Mobile Layout: 480px.
+		Gutters: 24px.
+		Outer margins: 22px.
+		Inherits styles from: Default Layout, Mobile Layout.
+------------------------------------------------------------
+cols    1     2      3      4      5
+px      68    160    252    344    436    */
+
+@media only screen and (max-width: 375px) {
+.header .logo {
+    width: 113%;
+}
+.toggle-buttons .btn {
+    margin-left: -110px;
+}
+.header h3 {
+    padding: 15px;
+}
+.overview_card {
+    padding: 24px 24px;
+    .wrapper {
+        margin-left: 34%;
+}
+}
+.growth_section {
+    width: 100%;
+    margin-left: 43px;
+}
+.toggle-buttons .btn {
+    margin-left: -85px;
+}
+.trans_section {
+    width: 100%;
+}
+.table-responsive {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch; /* Smooth scrolling for iOS */
+    }
+
+    table {
+        min-width: 600px; /* Or any width that may require scrolling */
+    }
+
+}
+@media only screen and (max-width: 400px) {
+
+
+}
+
+/*	Retina media query.
+	Overrides styles for devices with a 
+	device-pixel-ratio of 2+, such as iPhone 4.
+-----------------------------------------------    */
+
+@media 
+	only screen and (-webkit-min-device-pixel-ratio: 2),
+	only screen and (min-device-pixel-ratio: 2) {
+
+	
+}

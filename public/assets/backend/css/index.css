@@ -1,0 +1,523 @@
+/* Reset & Base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'SF Pro Display', sans-serif;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 20px;
+    font-display: swap;
+    color: #8E9ABB;
+}
+
+a {
+    text-decoration: none;
+}
+
+ul, li, ol {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+body {
+    background: #f8f9fa;
+}
+.container-fluid{
+    padding: 0;
+}
+/* ==================   Header Part ======================= */
+.header {
+    border-bottom: 1px solid #E2E9FC;
+}
+
+.header .logo {
+    background: #fff;
+    border-right: 1px solid #E2E9FC;
+    width: 250px;
+    display: flex;
+    padding: 20px;
+}
+
+.header .logo img {
+    width: 52px;
+    height: 52px;
+}
+
+.header .logo h1 {
+    margin-left: 10px;
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 30px;
+    color: #212633;
+}
+.header h3 {
+    padding: 20px;
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 40px;
+    color: #000;
+}
+
+.search_bar {
+    margin-left: 44% !important;
+    margin: 23px;
+    padding: 8px;
+    border-radius: 12px;
+    width: 350px;
+    border: 1px solid #E2E9FC;
+}
+
+.search_bar button {
+    border: none;
+    background: none;
+    font-size: 18px;
+    color: #000;
+}
+
+.search_bar input {
+    border: none;
+    margin-left: 6px;
+    width: 80%;
+}
+
+.search_bar input:focus-visible {
+    outline: 0;
+}
+
+.search_bar ::placeholder {
+    padding: 12px;
+    font-size: 16px;
+    line-height: 24px;
+}
+
+/* ==============   Sidebar ================= */
+.side_bar .menu_bar {
+    padding: 12px;
+    background: #fff;
+    width: 250px;
+    padding-bottom: 24px;
+    border-right: 1px solid #E2E9FC;
+}
+
+.side_bar .menu_bar h4 {
+    padding-top: 38px;
+    padding-bottom: 10px;
+    font-weight: 600;
+    color: #212633;
+}
+
+.side_bar .menu_bar ul li {
+    padding: 13px 12px;
+    border-radius: 12px;
+    transition: 0.3s;
+}
+
+.side_bar .menu_bar ul li:hover {
+    /* background: #34C7A4; */
+}
+
+.side_bar .menu_bar ul li a span {
+    margin-left: 12px;
+    font-size: 14px;
+}
+
+.side_bar .menu_bar ul li:hover a span {
+    color: #000;
+    font-weight: 600;
+}
+
+.menu_two {
+    height: 65%;
+    padding-top: 24px;
+    border-top: 1px solid #E2E9FC;
+}
+.menu_bar ul li .dropdown_menu{
+    background: rgb(236, 173, 173);
+    visibility: hidden;
+    opacity: 0;
+    margin: 10px 0 0 35px;
+    ul{
+        li a{
+            color: #000;
+            font-size: 14px;
+        }
+    }
+}
+.menu_bar ul li:hover .dropdown_menu{
+    visibility: visible;
+    opacity: 1;
+}
+/* =================    Dashboard Content   ====================== */
+.over{
+    transform: translateX(-23px);
+}
+/* =================    Overview part   ============================ */
+.Overview{
+        padding-top: 38px;
+    }
+    .overview_card{
+            background: #34C7A4;
+            padding: 32px 24px;
+            border-radius: 24px;
+            text-align: center;
+            h4{
+                font-size: 16px;
+                line-height: 24px;
+                color: #fff;
+            }
+            h3{
+                font-size: 32px;
+                font-weight: 600;
+                line-height: 40px;
+                color: #fff;
+                /* padding-top: 8px; */
+                padding-bottom: 24px;
+            }
+        }
+        .card_color{
+            background: #fff;
+            h4,h3{
+                color: #000;
+            }
+        }
+.side_bar .overview{
+    margin-left: 250px;
+    .overview_card{
+        background: #34C7A4;
+    }
+}
+/* =================    Growth Section Part ======================= */
+.growth_chart{
+    background: #fff;
+    margin: 32px 0px 71px 0;
+    padding: 24px;
+    border-radius: 24px;
+}
+.growth_card{
+    width: 320px;
+    margin: 32px 0px 32px 0;
+}
+.growth_card_sale{
+    margin-bottom: 40px;
+    height: 244px;
+    h4{
+        font-size: 24px;
+        font-weight: 600;
+        line-height: 32px;
+    }
+}
+/* Customer Growth Button - Day, Month, Year */
+.toggle-buttons {
+      display: flex;
+      margin-bottom: 10px;
+      h3{
+        font-size: 24px;
+        line-height: 32px;
+        color: #000;
+        font-weight: 600;
+      }
+      .btn{
+        background: #F3F6FF;
+        margin-left: 28%;
+      }
+    }
+    .toggle-buttons button {
+      margin-left: 10px;
+      padding: 5px 15px;
+      border: none;
+      /* background-color: #e0e0e0; */
+      cursor: pointer;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+    .toggle-buttons button.active {
+      background-color: #fff;
+      color: #212633;
+    } 
+
+.wrapper{
+    width: 100px;
+    height: 100px;
+    margin-left: 27%;
+}
+
+ /* =================   Transaction Section Part    ================ */
+    .trans{
+            background: #fff;
+            margin: 32px 0px 32px 0;
+            padding: 24px;
+            border-radius: 24px;
+    }
+    .trans_header{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            h3{
+                font-size: 24px;
+                line-height: 32px;
+                color: #000;
+                font-weight: 600;
+            }
+        }
+        /* Transaction button - Day, Month, Year */
+        .filters {
+             background: #F3F6FF;
+            margin-left: 28%;
+            padding: 4px;
+            border-radius: 8px;
+        }
+        .filters button {
+            margin-left: 10px;
+            padding: 5px 15px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .filters button.active {
+            background-color: #fff;
+            color: #212633;
+        }
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .search-bar input, .search-bar select, .search-bar button {
+            padding: 5px;
+            border-radius: 6px;
+            border: none;
+            background: #F3F6FF;
+            font-size: 16px;
+            color: #434A5E;
+        }
+        .search-bar input {
+            flex: 1;
+        }::placeholder{
+            font-size: 16px;
+            color: #434A5E;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            text-align: left;
+            padding-bottom: 10px;
+            color: #212633;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        td {
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 22px;
+            color: #212633;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+            transform: translateX(-38px);
+            span{
+                margin-left: 40px;
+            }
+        }
+        .money {
+            transform: translateX(0px);
+        }
+        .transaction {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            span{
+                width: 36px;
+                height: 36px;
+                padding: 6px;
+                border-radius: 12px;
+                background: #34C759;
+                svg{
+                    border-radius: 12px;
+                    width: 23px;
+                    height: 23px;
+                    background: #fff;
+                    color: #34C759;
+                }
+            }
+        }
+        .status {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+        }
+        .success {
+            background-color: #34C759;
+        }
+        .failure {
+            background-color: #ff1744;
+        }
+        .sell-all {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .sell-all button {
+            padding: 10px 20px;
+            background: #000;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .sell-all button span svg{
+            color: #fff;
+            margin-left: 8px;
+        }
+
+
+        /* By default, the table is not scrollable on desktop */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+        /* =============    Top Customer Part   ================== */
+        .trans_section{
+            gap: 10px;
+            transform: translateY(-11%);
+        }
+        .customer{
+            background: #fff;
+            width: 300px;
+            padding: 20px;
+            border-radius: 15px;
+            width: 300px;
+            height: fit-content;
+            margin: 32px 0px 32px 0;
+            
+        }
+
+
+        .top-customer-card {
+            h3{
+                margin-bottom: 20px;
+                font-size: 24px;
+                line-height: 32px;
+                color: #000;
+                font-weight: 600;
+            }
+        }
+
+
+
+.customer-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.customer-list li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 23px;
+}
+
+.rank-badge img {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+}
+
+.rank {
+    width: 24px;
+    text-align: center;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.profile {
+    width: 40px;
+    height: 40px;
+    background-color: #BDBDBD;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.customer-info h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 24px;
+    color: #212633;
+}
+
+.customer-info p {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 22px;
+    color: #8E9ABB;
+}
+
+.sell-all-btn {
+    margin-top: 40px;
+    margin-left: 90px;
+    margin-bottom: 8px;
+    text-align: center;
+    padding: 10px 20px;
+    background: #000;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.sell-all-btn i {
+    margin-left: 5px;
+}
+
+
+
+
+/* Hide menu button on large screens */
+.menu-btn {
+    font-size: 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: none;
+    margin-left: 45px;
+    transform: translateY(-51px);
+    svg{
+        font-size: 27px;
+    }
+}
+
+
+
+/* pagination */
+.page-link {
+    color: #fff;
+    background-color: #007bff;
+    border: 1px solid #007bff;
+    margin: 0 2px;
+}
+
+.page-item.active .page-link {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.page-item.disabled .page-link {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+
+
