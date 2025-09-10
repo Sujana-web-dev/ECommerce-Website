@@ -98,7 +98,7 @@
                                         </a>
                                         <a href="{{ route('category.delete', $category->id) }}"
                                             class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-[#ec4642] to-red-600 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200"
-                                            onclick="return confirm('Are you sure you want to delete this category?')">
+                                            onclick="return handleCategoryDelete(event, '{{ $category->name }}', '{{ route('category.delete', $category->id) }}')"
                                             <i class="fas fa-trash mr-1"></i>
                                             Delete
                                         </a>
@@ -134,5 +134,39 @@
         </div>
     </div>
 </div>
+
+<script>
+// Custom category delete handler
+async function handleCategoryDelete(event, categoryName, deleteUrl) {
+    event.preventDefault();
+    
+    const confirmed = await adminConfirm({
+        type: 'delete',
+        title: 'Delete Category',
+        subtitle: 'This action cannot be undone',
+        message: `Are you sure you want to delete "${categoryName}"? This will permanently remove the category and may affect associated products.`,
+        confirmText: 'Delete Category'
+    });
+
+    if (confirmed) {
+        // Show loading state
+        const button = event.target.closest('a');
+        const originalContent = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Deleting...';
+        button.style.pointerEvents = 'none';
+        
+        try {
+            window.location.href = deleteUrl;
+        } catch (error) {
+            console.error('Delete error:', error);
+            button.innerHTML = originalContent;
+            button.style.pointerEvents = 'auto';
+            showAdminSuccess('Error', 'Failed to delete category. Please try again.');
+        }
+    }
+    
+    return false;
+}
+</script>
 
 @endsection

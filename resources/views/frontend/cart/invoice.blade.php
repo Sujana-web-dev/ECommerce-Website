@@ -71,7 +71,7 @@
                                 <td class="border border-gray-200 px-4 py-3">
                                     <div class="flex items-center gap-3">
                                         @if($item->product && $item->product->image)
-                                        <img src="{{ $item->product->image }}" alt="{{ $item->product->name }}" class="w-10 h-10 object-cover rounded">
+                                        <img src="{{ asset('storage/' . $item->product->image) }}" alt="{{ $item->product->name }}" class="w-10 h-10 object-cover rounded">
                                         @endif
                                         <span class="font-medium">{{ $item->product->name ?? 'Product Deleted' }}</span>
                                     </div>

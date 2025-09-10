@@ -52,7 +52,7 @@
                             <tr class="align-middle" data-product-id="{{ $product?->id }}">
                                 <td class="py-4">
                                     <div class="flex items-center gap-4">
-                                        <img src="{{ $product?->image }}" alt="{{ $product?->name }}" class="w-16 h-16 object-cover rounded-lg border">
+                                        <img src="{{ $product?->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/64x64/f8fafc/64748b?text=No+Image' }}" alt="{{ $product?->name }}" class="w-16 h-16 object-cover rounded-lg border">
                                         <div>
                                             <div class="font-semibold text-[#1D293D] text-base">{{ $product?->name }}</div>
                                             <div class="text-xs text-gray-400 mt-1">{{ $product?->category?->name ?? '' }}</div>

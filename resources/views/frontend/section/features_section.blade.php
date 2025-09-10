@@ -23,7 +23,19 @@
         <tbody>
             @foreach($cart as $id => $item)
             <tr>
-                <td><img src="{{ asset('images/' . $item['image']) }}" width="60"></td>
+                <td>
+                    @if($item['image'])
+                        <img src="{{ asset('storage/' . $item['image']) }}" width="60" alt="{{ $item['name'] ?? 'Product' }}"
+                             onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='inline-block';">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-light" style="display:none;width:60px;height:60px;">
+                            <i class="fas fa-image text-muted"></i>
+                        </div>
+                    @else
+                        <div class="d-inline-flex align-items-center justify-content-center bg-light" style="width:60px;height:60px;">
+                            <i class="fas fa-image text-muted"></i>
+                        </div>
+                    @endif
+                </td>
                 <td>{{ $item['name'] }}</td>
                 <td>{{ $item['quantity'] }}</td>
                 <td>{{ $item['price'] }} ৳</td>

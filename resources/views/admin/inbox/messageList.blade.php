@@ -433,14 +433,22 @@
         });
 
         // Delete selected
-        document.getElementById('deleteSelected').addEventListener('click', function() {
+        document.getElementById('deleteSelected').addEventListener('click', async function() {
             const selectedMessages = document.querySelectorAll('.message-checkbox:checked');
             if (selectedMessages.length === 0) {
                 showNotification('Please select messages to delete', 'error');
                 return;
             }
             
-            if (confirm(`Are you sure you want to delete ${selectedMessages.length} message(s)?`)) {
+            const confirmed = await adminConfirm({
+                type: 'delete',
+                title: 'Delete Messages',
+                subtitle: 'Bulk deletion cannot be undone',
+                message: `Are you sure you want to delete ${selectedMessages.length} message(s)? This action cannot be undone.`,
+                confirmText: 'Delete All'
+            });
+            
+            if (confirmed) {
                 selectedMessages.forEach(checkbox => {
                     checkbox.closest('.message-item').remove();
                 });
@@ -461,8 +469,16 @@
         // Here you would open a reply modal or navigate to reply page
     }
 
-    function deleteMessage(id) {
-        if (confirm('Are you sure you want to delete this message?')) {
+    async function deleteMessage(id) {
+        const confirmed = await adminConfirm({
+            type: 'delete',
+            title: 'Delete Message',
+            subtitle: 'This action cannot be undone',
+            message: 'Are you sure you want to delete this message? This action cannot be undone.',
+            confirmText: 'Delete Message'
+        });
+        
+        if (confirmed) {
             document.querySelector(`[onclick="openMessage(${id})"]`).remove();
             showNotification('Message deleted', 'success');
             

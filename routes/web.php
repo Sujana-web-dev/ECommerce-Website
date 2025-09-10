@@ -191,6 +191,29 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/product/{id}', [ProductController::class, 'view'])->name('product.view');
 
-
-
-
+// Temporary route to create admin user (REMOVE IN PRODUCTION)
+Route::get('/create-admin', function () {
+    $admin = \App\Models\User::firstOrCreate(
+        ['email' => 'admin@admin.com'],
+        [
+            'name' => 'Admin User',
+            'username' => 'admin',
+            'password' => bcrypt('Admin@123'),
+            'role' => 'admin',
+            'user_type' => 'admin'
+        ]
+    );
+    
+    return response()->json([
+        'message' => 'Admin user created/updated successfully!',
+        'admin' => [
+            'email' => $admin->email,
+            'name' => $admin->name,
+            'role' => $admin->role
+        ],
+        'login_credentials' => [
+            'email' => 'admin@admin.com',
+            'password' => 'Admin@123'
+        ]
+    ]);
+});

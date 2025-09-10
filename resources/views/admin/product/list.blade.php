@@ -135,10 +135,20 @@
                             <td class="px-3 py-3 whitespace-nowrap">
                                 <div class="flex items-center space-x-3">
                                     <div class="relative flex-shrink-0">
-                                        <img class="h-12 w-12 rounded-lg object-cover shadow-md border border-white group-hover:scale-105 transition-transform duration-200"
-                                            src="{{ $product->image ? asset($product->image) : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xNiAxNkgxMlYzMkgyNFYyN0gxNlYxNloiIGZpbGw9IiM5Q0EzQUYiLz4KPHBhdGggZD0iTTQ4IDIxLjMzMzNINDIuNjY2N1Y0Mkg0OFYyMS4zMzMzWiIgZmlsbD0iIzlDQTNBRiIvPgo8Y2lyY2xlIGN4PSIzMiIgY3k9IjMyIiByPSI0IiBmaWxsPSIjOUNBM0FGIi8+Cjwvc3ZnPgo=' }}"
-                                            alt="{{ $product->name }}"
-                                            onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xNiAxNkgxMlYzMkgyNFYyN0gxNlYxNloiIGZpbGw9IiM5Q0EzQUYiLz4KPHBhdGggZD0iTTQ4IDIxLjMzMzNINDIuNjY2N1Y0Mkg0OFYyMS4zMzMzWiIgZmlsbD0iIzlDQTNBRiIvPgo8Y2lyY2xlIGN4PSIzMiIgY3k9IjMyIiByPSI0IiBmaWxsPSIjOUNBM0FGIi8+Cjwvc3ZnPgo='">
+                                        @if($product->image)
+                                            <img class="h-12 w-12 rounded-lg object-cover shadow-md border border-white group-hover:scale-105 transition-transform duration-200"
+                                                src="{{ asset('storage/' . $product->image) }}"
+                                                alt="{{ $product->name }}"
+                                                onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex';"
+                                                loading="lazy">
+                                            <div class="h-12 w-12 rounded-lg bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center shadow-md border border-white group-hover:scale-105 transition-transform duration-200" style="display:none;">
+                                                <i class="fas fa-image text-gray-500 text-lg"></i>
+                                            </div>
+                                        @else
+                                            <div class="h-12 w-12 rounded-lg bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center shadow-md border border-white group-hover:scale-105 transition-transform duration-200">
+                                                <i class="fas fa-image text-gray-500 text-lg"></i>
+                                            </div>
+                                        @endif
                                         <div class="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                                     </div>
                                     <div class="min-w-0 flex-1">
@@ -236,7 +246,7 @@
                                     {{-- Delete Button --}}
                                     <a href="{{ route('product.delete', $product->id) }}"
                                         class="w-8 h-8 bg-gradient-to-r from-[#ec4642] to-red-600 hover:from-red-600 hover:to-[#ec4642] text-white rounded-md flex items-center justify-center transition-all duration-200 transform hover:scale-110 shadow-sm hover:shadow-md"
-                                        onclick="return confirm('Are you sure you want to delete this product?')"
+                                        onclick="return handleDelete(event, '{{ $product->name }}', '{{ route('product.delete', $product->id) }}')"
                                         title="Delete Product">
                                         <i class="fas fa-trash text-xs"></i>
                                     </a>
@@ -472,6 +482,34 @@
             closeDetailsModal();
         }
     });
+
+    // Custom delete handler
+    async function handleDelete(event, productName, deleteUrl) {
+        event.preventDefault();
+        
+        const confirmed = await adminConfirm({
+            type: 'delete',
+            title: 'Delete Product',
+            subtitle: 'This action cannot be undone',
+            message: `Are you sure you want to delete "${productName}"? This will permanently remove the product and all associated data.`,
+            confirmText: 'Delete Product'
+        });
+
+        if (confirmed) {
+            // Show loading state
+            event.target.innerHTML = '<i class="fas fa-spinner fa-spin text-xs"></i>';
+            event.target.style.pointerEvents = 'none';
+            
+            try {
+                window.location.href = deleteUrl;
+            } catch (error) {
+                console.error('Delete error:', error);
+                showAdminSuccess('Error', 'Failed to delete product. Please try again.');
+            }
+        }
+        
+        return false;
+    }
 </script>
 @endpush
 @endsection

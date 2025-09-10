@@ -55,7 +55,7 @@
                 <div class="relative bg-white rounded-3xl h-full flex flex-col">
                     <!-- Image Section with Overlay Effects -->
                     <div class="relative overflow-hidden h-72 bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 rounded-t-3xl">
-                        <img src="{{ $product->image }}" alt="{{ $product->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 filter group-hover:brightness-110">
+                        <img src="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/400x300/f8fafc/64748b?text=No+Image' }}" alt="{{ $product->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 filter group-hover:brightness-110">
 
                         <!-- Gradient Overlay -->
                         <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -596,7 +596,6 @@
 
         function addToCart(productId) {
             let quantity = 1;
-            let productName = 'Product';
 
             // If called from modal, get quantity from modal
             const quantityInput = document.getElementById('quantity');
@@ -606,21 +605,14 @@
                 quantity = quantityInput.value;
             }
 
-            // Get product name
-            const productCard = document.querySelector(`[data-product="${productId}"]`);
-            if (productCard) {
-                const titleElement = productCard.querySelector('h3');
-                productName = titleElement ? titleElement.innerText.trim() : 'Product';
+            // Use the global addToCart function from header
+            if (window.addToCart) {
+                window.addToCart(productId, quantity);
+            } else {
+                // Fallback if global function not available
+                console.log('Adding to cart:', { productId, quantity });
+                alert(`🛒 Added to cart! Quantity: ${quantity}`);
             }
-
-            console.log('Adding to cart:', {
-                productId,
-                productName,
-                quantity
-            });
-
-            // Enhanced alert with more details
-            alert(`🛒 Added to cart!\n\nProduct: ${productName}\nQuantity: ${quantity}\n\n✅ Item successfully added to your cart!`);
 
             // Close modal if it's open
             if (modal && modal.style.display !== 'none' && !modal.classList.contains('hidden')) {

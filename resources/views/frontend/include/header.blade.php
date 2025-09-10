@@ -209,8 +209,8 @@ $cart = collect(session('cart', []));
 
 
 <!-- ✅ Signup Modal -->
-<div id="signupModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+<div id="signupModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden overflow-y-auto p-4">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-auto my-auto max-h-[90vh] overflow-y-auto">
         <div class="p-6">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-2xl font-bold text-gray-900">Create an Account</h3>
@@ -247,14 +247,35 @@ $cart = collect(session('cart', []));
                     <input type="email" name="email" id="signupEmail" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="your@email.com" required>
                 </div>
 
-                <div class="mb-6">
+                <div class="mb-4">
                     <label for="signupPassword" class="block text-gray-700 font-medium mb-2">Password</label>
-                    <input type="password" name="password" id="signupPassword" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="••••••••" required>
+                    <div class="relative">
+                        <input type="password" name="password" id="signupPassword" class="w-full px-4 py-2 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="••••••••" required>
+                        <button type="button" id="toggleSignupPassword" class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700">
+                            <i id="signupEyeIcon" class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-lg">
+                        <p class="text-xs font-semibold text-blue-800 mb-1">🔒 Strong Password Required:</p>
+                        <ul class="text-xs text-blue-700 space-y-1">
+                            <li id="modal-length-check" class="flex items-center"><span class="mr-1">❌</span> 8+ characters</li>
+                            <li id="modal-uppercase-check" class="flex items-center"><span class="mr-1">❌</span> Uppercase (A-Z)</li>
+                            <li id="modal-lowercase-check" class="flex items-center"><span class="mr-1">❌</span> Lowercase (a-z)</li>
+                            <li id="modal-number-check" class="flex items-center"><span class="mr-1">❌</span> Number (0-9)</li>
+                            <li id="modal-special-check" class="flex items-center"><span class="mr-1">❌</span> Special (@$!%*#?&)</li>
+                        </ul>
+                        <p class="text-xs text-blue-600 mt-1 font-medium">💡 Use unique password to avoid security warnings.</p>
+                    </div>
                 </div>
 
                 <div class="mb-6">
                     <label for="password_confirmation" class="block text-gray-700 font-medium mb-2">Confirm Password</label>
-                    <input type="password" name="password_confirmation" id="password_confirmation" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="••••••••" required>
+                    <div class="relative">
+                        <input type="password" name="password_confirmation" id="password_confirmation" class="w-full px-4 py-2 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="••••••••" required>
+                        <button type="button" id="toggleSignupPasswordConfirm" class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700">
+                            <i id="signupEyeIconConfirm" class="fas fa-eye"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <button type="submit" class="w-full btn-secondary text-white px-8 py-2 rounded-lg font-medium gradient-bg">
@@ -401,7 +422,7 @@ $cart = collect(session('cart', []));
                 div.innerHTML = `
                     <div class="flex items-center space-x-4">
                         <div class="relative overflow-hidden rounded-lg">
-                            <img src="${item.product.image}" class="w-20 h-20 object-cover rounded-lg group-hover:scale-105 transition-transform duration-300">
+                            <img src="${item.product.image ? '/storage/' + item.product.image : 'https://via.placeholder.com/80x80/f8fafc/64748b?text=No+Image'}" class="w-20 h-20 object-cover rounded-lg group-hover:scale-105 transition-transform duration-300">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         </div>
                         <div class="flex-1 min-w-0">
@@ -435,6 +456,65 @@ $cart = collect(session('cart', []));
         }
 
         // Add to cart
+        // Cart Success Popup Function
+        window.showCartPopup = function(message, type = 'success') {
+            // Remove existing popup if any
+            const existingPopup = document.getElementById('cart-popup');
+            if (existingPopup) {
+                existingPopup.remove();
+            }
+
+            // Create popup element
+            const popup = document.createElement('div');
+            popup.id = 'cart-popup';
+            popup.className = `fixed top-6 right-6 z-[9999] px-6 py-4 rounded-xl shadow-2xl text-white font-semibold transform transition-all duration-500 ease-out translate-x-full opacity-0 ${
+                type === 'success' ? 'bg-gradient-to-r from-green-500 to-green-600' : 
+                type === 'error' ? 'bg-gradient-to-r from-red-500 to-red-600' : 
+                'bg-gradient-to-r from-blue-500 to-blue-600'
+            }`;
+            
+            popup.innerHTML = `
+                <div class="flex items-center space-x-3">
+                    <div class="flex-shrink-0">
+                        ${type === 'success' ? 
+                            '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' :
+                            type === 'error' ?
+                            '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>' :
+                            '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'
+                        }
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium">${message}</p>
+                    </div>
+                    <button onclick="document.getElementById('cart-popup').remove()" class="flex-shrink-0 ml-3 hover:bg-white/20 rounded-full p-1 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            `;
+
+            document.body.appendChild(popup);
+
+            // Animate in
+            setTimeout(() => {
+                popup.classList.remove('translate-x-full', 'opacity-0');
+                popup.classList.add('translate-x-0', 'opacity-100');
+            }, 10);
+
+            // Auto remove after 4 seconds
+            setTimeout(() => {
+                if (popup && popup.parentNode) {
+                    popup.classList.add('translate-x-full', 'opacity-0');
+                    setTimeout(() => {
+                        if (popup && popup.parentNode) {
+                            popup.remove();
+                        }
+                    }, 500);
+                }
+            }, 4000);
+        }
+
         window.addToCart = function(productId, quantity = 1) {
             fetch("{{ route('cart.add') }}", {
                     method: 'POST',
@@ -452,9 +532,16 @@ $cart = collect(session('cart', []));
                     if (data.success) {
                         renderCart(data.cart); // Update badge + offcanvas
                         cartOffcanvas.classList.remove('translate-x-full'); // Show offcanvas
+                        
+                        // Show success popup
+                        showCartPopup('Successfully added item to cart!', 'success');
                     } else {
-                        alert(data.message || 'Failed to add product');
+                        showCartPopup(data.message || 'Failed to add product', 'error');
                     }
+                })
+                .catch(error => {
+                    console.error('Cart error:', error);
+                    showCartPopup('Something went wrong. Please try again.', 'error');
                 });
         }
 
@@ -680,7 +767,7 @@ $cart = collect(session('cart', []));
                         div.innerHTML = `
                             <div class="flex items-center space-x-4">
                                 <div class="relative overflow-hidden rounded-lg">
-                                    <img src="${item.product.image}" alt="${item.product.name}" class="w-20 h-20 object-cover rounded-lg group-hover:scale-105 transition-transform duration-300">
+                                    <img src="${item.product.image ? '/storage/' + item.product.image : 'https://via.placeholder.com/80x80/f8fafc/64748b?text=No+Image'}" alt="${item.product.name}" class="w-20 h-20 object-cover rounded-lg group-hover:scale-105 transition-transform duration-300">
                                     <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 </div>
                                 <div class="flex-1 min-w-0">
@@ -713,12 +800,123 @@ $cart = collect(session('cart', []));
 
                     // Show offcanvas
                     document.getElementById('cartOffcanvas').classList.remove('translate-x-full');
+                    
+                    // Show success popup
+                    showCartPopup('Successfully added item to cart!', 'success');
 
                     if (modal && modal.style.display !== 'none') closeQuickView();
                 } else {
-                    alert(data.message || 'Failed to add product');
+                    showCartPopup(data.message || 'Failed to add product', 'error');
                 }
             })
             .catch(err => console.error(err));
     }
+
+    // Modal Password Validation
+    document.addEventListener('DOMContentLoaded', function() {
+        const modalPasswordInput = document.getElementById('signupPassword');
+        if (modalPasswordInput) {
+            modalPasswordInput.addEventListener('input', function() {
+                const password = this.value;
+
+                // Check length
+                const lengthCheck = document.getElementById('modal-length-check');
+                if (password.length >= 8) {
+                    lengthCheck.innerHTML = '<span class="mr-1">✅</span> 8+ characters';
+                    lengthCheck.classList.remove('text-red-600');
+                    lengthCheck.classList.add('text-green-600');
+                } else {
+                    lengthCheck.innerHTML = '<span class="mr-1">❌</span> 8+ characters';
+                    lengthCheck.classList.remove('text-green-600');
+                    lengthCheck.classList.add('text-red-600');
+                }
+
+                // Check uppercase
+                const uppercaseCheck = document.getElementById('modal-uppercase-check');
+                if (/[A-Z]/.test(password)) {
+                    uppercaseCheck.innerHTML = '<span class="mr-1">✅</span> Uppercase (A-Z)';
+                    uppercaseCheck.classList.remove('text-red-600');
+                    uppercaseCheck.classList.add('text-green-600');
+                } else {
+                    uppercaseCheck.innerHTML = '<span class="mr-1">❌</span> Uppercase (A-Z)';
+                    uppercaseCheck.classList.remove('text-green-600');
+                    uppercaseCheck.classList.add('text-red-600');
+                }
+
+                // Check lowercase
+                const lowercaseCheck = document.getElementById('modal-lowercase-check');
+                if (/[a-z]/.test(password)) {
+                    lowercaseCheck.innerHTML = '<span class="mr-1">✅</span> Lowercase (a-z)';
+                    lowercaseCheck.classList.remove('text-red-600');
+                    lowercaseCheck.classList.add('text-green-600');
+                } else {
+                    lowercaseCheck.innerHTML = '<span class="mr-1">❌</span> Lowercase (a-z)';
+                    lowercaseCheck.classList.remove('text-green-600');
+                    lowercaseCheck.classList.add('text-red-600');
+                }
+
+                // Check number
+                const numberCheck = document.getElementById('modal-number-check');
+                if (/[0-9]/.test(password)) {
+                    numberCheck.innerHTML = '<span class="mr-1">✅</span> Number (0-9)';
+                    numberCheck.classList.remove('text-red-600');
+                    numberCheck.classList.add('text-green-600');
+                } else {
+                    numberCheck.innerHTML = '<span class="mr-1">❌</span> Number (0-9)';
+                    numberCheck.classList.remove('text-green-600');
+                    numberCheck.classList.add('text-red-600');
+                }
+
+                // Check special character
+                const specialCheck = document.getElementById('modal-special-check');
+                if (/[@$!%*#?&]/.test(password)) {
+                    specialCheck.innerHTML = '<span class="mr-1">✅</span> Special (@$!%*#?&)';
+                    specialCheck.classList.remove('text-red-600');
+                    specialCheck.classList.add('text-green-600');
+                } else {
+                    specialCheck.innerHTML = '<span class="mr-1">❌</span> Special (@$!%*#?&)';
+                    specialCheck.classList.remove('text-green-600');
+                    specialCheck.classList.add('text-red-600');
+                }
+            });
+        }
+
+        // Modal Password toggle functionality
+        const toggleSignupPassword = document.getElementById('toggleSignupPassword');
+        const signupPasswordField = document.getElementById('signupPassword');
+        const signupEyeIcon = document.getElementById('signupEyeIcon');
+
+        if (toggleSignupPassword) {
+            toggleSignupPassword.addEventListener('click', function() {
+                if (signupPasswordField.type === 'password') {
+                    signupPasswordField.type = 'text';
+                    signupEyeIcon.classList.remove('fa-eye');
+                    signupEyeIcon.classList.add('fa-eye-slash');
+                } else {
+                    signupPasswordField.type = 'password';
+                    signupEyeIcon.classList.remove('fa-eye-slash');
+                    signupEyeIcon.classList.add('fa-eye');
+                }
+            });
+        }
+
+        // Modal Confirm password toggle functionality
+        const toggleSignupPasswordConfirm = document.getElementById('toggleSignupPasswordConfirm');
+        const signupPasswordConfirmField = document.getElementById('password_confirmation');
+        const signupEyeIconConfirm = document.getElementById('signupEyeIconConfirm');
+
+        if (toggleSignupPasswordConfirm) {
+            toggleSignupPasswordConfirm.addEventListener('click', function() {
+                if (signupPasswordConfirmField.type === 'password') {
+                    signupPasswordConfirmField.type = 'text';
+                    signupEyeIconConfirm.classList.remove('fa-eye');
+                    signupEyeIconConfirm.classList.add('fa-eye-slash');
+                } else {
+                    signupPasswordConfirmField.type = 'password';
+                    signupEyeIconConfirm.classList.remove('fa-eye-slash');
+                    signupEyeIconConfirm.classList.add('fa-eye');
+                }
+            });
+        }
+    });
 </script>

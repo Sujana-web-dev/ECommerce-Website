@@ -48,7 +48,7 @@ class ProductController extends Controller
         // Handle file upload
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('products', 'public');
-            $product->image = 'storage/' . $path;
+            $product->image = $path;
         }
 
         $product->save();
@@ -120,7 +120,7 @@ class ProductController extends Controller
         // Only update image if new one is uploaded
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('products', 'public');
-            $product->image = 'storage/' . $path;
+            $product->image = $path;
         }
 
         $product->save();

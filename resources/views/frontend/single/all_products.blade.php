@@ -42,7 +42,7 @@
                 <div class="relative bg-white rounded-3xl overflow-hidden">
                     <!-- Product Image -->
                     <div class="relative overflow-hidden h-64 bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
-                        <img src="{{ $product->image ?? 'https://via.placeholder.com/400x300/f8fafc/64748b?text=Product' }}" 
+                        <img src="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/400x300/f8fafc/64748b?text=Product' }}" 
                              alt="{{ $product->name }}" 
                              class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 filter group-hover:brightness-110">
                         
@@ -173,8 +173,13 @@
 <script>
     // Product interaction functions
     function addToCart(productId) {
-        console.log('Adding product to cart:', productId);
-        showMessage('Product added to cart!', 'success');
+        // Use the global addToCart function from header
+        if (window.addToCart) {
+            window.addToCart(productId);
+        } else {
+            console.log('Adding product to cart:', productId);
+            showMessage('Product added to cart!', 'success');
+        }
     }
 
     function addToWishlist(productId) {

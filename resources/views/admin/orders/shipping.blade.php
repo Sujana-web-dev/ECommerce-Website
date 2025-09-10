@@ -314,12 +314,20 @@
 </style>
 
 <script>
-function updateOrderStatus(orderId, status) {
+async function updateOrderStatus(orderId, status) {
     if (!status) return;
     
     const statusText = status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
     
-    if (confirm(`Are you sure you want to change this order status to ${statusText}?`)) {
+    const confirmed = await adminConfirm({
+        type: 'status',
+        title: 'Update Order Status',
+        subtitle: 'Change order status',
+        message: `Are you sure you want to change this order status to "${statusText}"?`,
+        confirmText: 'Update Status'
+    });
+    
+    if (confirmed) {
         fetch(`/orders/${orderId}/status`, {
             method: 'PATCH',
             headers: {

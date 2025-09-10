@@ -60,7 +60,7 @@
                         @foreach($order->items as $item)
                         <div class="flex items-center p-4 bg-gray-50 rounded-xl">
                             @if($item->product && $item->product->image)
-                                <img src="{{ $item->product->image }}" 
+                                <img src="{{ asset('storage/' . $item->product->image) }}" 
                                      alt="{{ $item->product->name }}" 
                                      class="w-20 h-20 object-cover rounded-lg mr-4">
                             @else

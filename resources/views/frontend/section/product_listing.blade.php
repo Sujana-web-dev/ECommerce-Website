@@ -55,9 +55,19 @@
                     <div class="relative h-64 overflow-hidden rounded-t-3xl">
                         <div class="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-purple-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                         
-                        <img src="{{ asset('images/' . $product['image']) }}" 
-                             alt="{{ $product['name'] }}" 
-                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        @if($product['image'])
+                            <img src="{{ asset('storage/' . $product['image']) }}" 
+                                 alt="{{ $product['name'] }}" 
+                                 class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                 onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex';">
+                            <div class="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center" style="display:none;">
+                                <i class="fas fa-image text-gray-500 text-4xl"></i>
+                            </div>
+                        @else
+                            <div class="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                                <i class="fas fa-image text-gray-500 text-4xl"></i>
+                            </div>
+                        @endif
                         
                         <!-- Floating Price Badge -->
                         <div class="absolute top-4 left-4">

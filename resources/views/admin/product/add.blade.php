@@ -264,4 +264,60 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle form submissions with custom confirmations
+    const forms = document.querySelectorAll('form');
+    
+    forms.forEach(form => {
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const action = form.getAttribute('action');
+            const isEdit = action.includes('edit');
+            const isCreate = action.includes('create');
+            
+            let confirmOptions = {};
+            
+            if (isEdit) {
+                confirmOptions = {
+                    type: 'edit',
+                    title: 'Update Product',
+                    subtitle: 'Save changes',
+                    message: 'Are you sure you want to update this product with the new information?',
+                    confirmText: 'Update Product'
+                };
+            } else if (isCreate) {
+                confirmOptions = {
+                    type: 'add',
+                    title: 'Add Product',
+                    subtitle: 'Create new product',
+                    message: 'Are you sure you want to add this new product to your inventory?',
+                    confirmText: 'Add Product'
+                };
+            }
+            
+            if (Object.keys(confirmOptions).length > 0) {
+                const confirmed = await adminConfirm(confirmOptions);
+                
+                if (confirmed) {
+                    // Show loading state
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    const originalContent = submitBtn.innerHTML;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
+                    submitBtn.disabled = true;
+                    
+                    // Submit the form
+                    form.submit();
+                }
+            } else {
+                // Submit normally if no confirmation needed
+                form.submit();
+            }
+        });
+    });
+});
+</script>
+
 @endsection

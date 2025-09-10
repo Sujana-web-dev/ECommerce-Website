@@ -27,7 +27,12 @@
             </div>
             <div>
                 <label class="block text-gray-700 font-semibold mb-1">Password</label>
-                <input type="password" name="password" class="w-full border rounded px-4 py-2" required>
+                <div class="relative">
+                    <input type="password" name="password" id="loginPassword" class="w-full border rounded px-4 py-2 pr-12" required>
+                    <button type="button" id="toggleLoginPassword" class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700">
+                        <i id="loginEyeIcon" class="fas fa-eye"></i>
+                    </button>
+                </div>
             </div>
             <div class="flex justify-between items-center mb-4">
                 <div class="flex items-center">
@@ -54,6 +59,27 @@ document.getElementById('openSignupModal')?.addEventListener('click', function(e
     e.preventDefault();
     document.getElementById('loginModal')?.classList.add('hidden');
     document.getElementById('signupModal')?.classList.remove('hidden');
+});
+
+// Login password toggle functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleLoginPassword = document.getElementById('toggleLoginPassword');
+    const loginPasswordField = document.getElementById('loginPassword');
+    const loginEyeIcon = document.getElementById('loginEyeIcon');
+
+    if (toggleLoginPassword) {
+        toggleLoginPassword.addEventListener('click', function() {
+            if (loginPasswordField.type === 'password') {
+                loginPasswordField.type = 'text';
+                loginEyeIcon.classList.remove('fa-eye');
+                loginEyeIcon.classList.add('fa-eye-slash');
+            } else {
+                loginPasswordField.type = 'password';
+                loginEyeIcon.classList.remove('fa-eye-slash');
+                loginEyeIcon.classList.add('fa-eye');
+            }
+        });
+    }
 });
 </script>
 @endsection

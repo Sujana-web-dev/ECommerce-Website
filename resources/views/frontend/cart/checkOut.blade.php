@@ -98,7 +98,7 @@
                         @endphp
                         <div class="flex items-center justify-between py-3">
                             <div class="flex items-center gap-3">
-                                <img src="{{ $product?->image }}" alt="{{ $product?->name }}" class="w-12 h-12 object-cover rounded border">
+                                <img src="{{ $product?->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/48x48/f8fafc/64748b?text=No+Image' }}" alt="{{ $product?->name }}" class="w-12 h-12 object-cover rounded border">
                                 <div>
                                     <div class="font-semibold text-[#1D293D] text-sm">{{ $product?->name }}</div>
                                     <div class="text-xs text-gray-400">x{{ $quantity }}</div>

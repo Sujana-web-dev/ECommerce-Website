@@ -220,7 +220,7 @@
                         <p class="text-sm text-gray-600">Permanently delete this order and all associated data</p>
                     </div>
                 </div>
-                <form action="{{ route('orders.destroy', $order->id) }}" method="POST" onsubmit="return confirm('⚠️ WARNING: Are you sure you want to permanently delete this order?')" class="inline">
+                <form action="{{ route('orders.destroy', $order->id) }}" method="POST" onsubmit="return handleOrderDelete(event, '{{ $order->id }}')" class="inline">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-8 py-3 rounded-lg font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
@@ -306,5 +306,33 @@
     }
 </style>
 @endpush
+
+<script>
+async function handleOrderDelete(event, orderId) {
+    event.preventDefault();
+    
+    const confirmed = await adminConfirm({
+        type: 'delete',
+        title: 'Delete Order',
+        subtitle: '⚠️ WARNING: This action cannot be undone',
+        message: `Are you sure you want to permanently delete order #${orderId}? This will remove all order data including customer information, order items, and payment details.`,
+        confirmText: 'Delete Order'
+    });
+
+    if (confirmed) {
+        // Show loading and submit
+        const form = event.target;
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalContent = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Deleting...';
+        submitBtn.disabled = true;
+        
+        // Submit the form
+        form.submit();
+    }
+    
+    return false;
+}
+</script>
 
 @endsection
