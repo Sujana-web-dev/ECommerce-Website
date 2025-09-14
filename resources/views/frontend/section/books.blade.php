@@ -58,6 +58,27 @@
                         <!-- Gradient Overlay -->
                         <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
+                        <!-- Out of Stock Overlay -->
+                        @if($product->available_stock <= 0)
+                        <div class="absolute inset-0 bg-black/70 flex items-center justify-center z-10">
+                            <div class="text-center">
+                                <div class="bg-red-600 text-white px-6 py-3 rounded-lg font-bold text-lg shadow-lg mb-2">
+                                    <i class="fas fa-times-circle mr-2"></i>OUT OF STOCK
+                                </div>
+                                <p class="text-white text-sm">This item is currently unavailable</p>
+                            </div>
+                        </div>
+                        @endif
+
+                        <!-- Low Stock Badge -->
+                        @if($product->available_stock > 0 && $product->available_stock <= 5)
+                        <div class="absolute top-4 left-4">
+                            <span class="bg-orange-500 text-white px-3 py-1 text-xs font-bold rounded-full shadow-lg animate-pulse">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>Only {{ $product->available_stock }} left
+                            </span>
+                        </div>
+                        @endif
+
                         <!-- Floating Action Buttons with Animations -->
                         <div class="absolute top-4 right-4 flex flex-col space-y-3">
                             <button onclick="addToWishlist('{{ $product->id }}')" class="w-12 h-12 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center text-gray-600 hover:text-red-500 hover:bg-white transition-all shadow-xl transform hover:scale-125 hover:rotate-12 duration-300 border-2 border-transparent hover:border-red-200" title="Add to Wishlist">
@@ -124,7 +145,12 @@
                         </div>
 
                         <!-- Enhanced CTA Button -->
-                        <button onclick="addToCart('{{ $product->id }}')" class="relative w-full bg-gradient-to-r from-[#1D293D] to-[#2a3f57] text-white py-3 rounded-2xl font-bold text-lg hover:from-[#ec4642]  hover:to-[#c0392b] transition-all  ">
+                        @if($product->available_stock > 0)
+                        <button class="add-to-cart-btn relative w-full bg-gradient-to-r from-[#1D293D] to-[#2a3f57] text-white py-3 rounded-2xl font-bold text-lg hover:from-[#ec4642] hover:to-[#c0392b] transition-all group/btn"
+                                data-product-id="{{ $product->id }}" 
+                                data-product-name="{{ $product->name }}" 
+                                data-product-price="{{ $product->amount }}"
+                                data-product-stock="{{ $product->available_stock }}">
 
                             <!-- Button Content -->
                             <span class="relative flex items-center justify-center space-x-3">
@@ -136,6 +162,32 @@
                             <!-- Shimmer Effect -->
                             <div class="absolute inset-0 -top-full bg-gradient-to-b from-transparent via-white/20 to-transparent transform rotate-12 group-hover/btn:animate-shimmer"></div>
                         </button>
+                        <div class="mt-2 text-center">
+                            <div class="bg-green-50 px-3 py-1 rounded-full inline-block">
+                                <span class="text-sm text-green-700 font-semibold">
+                                    <i class="fas fa-check-circle mr-1"></i>Stock: {{ $product->stock }}
+                                </span>
+                            </div>
+                        </div>
+                        @else
+                        <button disabled class="relative w-full bg-gray-400 text-gray-700 py-3 rounded-2xl font-bold text-lg cursor-not-allowed opacity-60 pointer-events-none border-2 border-gray-300">
+                            <span class="relative flex items-center justify-center space-x-3">
+                                <i class="fas fa-ban text-lg"></i>
+                                <span>Out of Stock</span>
+                            </span>
+                            <!-- Strikethrough effect -->
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="w-3/4 h-0.5 bg-red-500 transform rotate-12 opacity-50"></div>
+                            </div>
+                        </button>
+                        <div class="mt-2 text-center">
+                            <div class="bg-red-50 px-3 py-1 rounded-full inline-block">
+                                <span class="text-sm text-red-600 font-bold">
+                                    <i class="fas fa-times-circle mr-1"></i>Out of Stock
+                                </span>
+                            </div>
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>

@@ -1,114 +1,281 @@
 @php
-// safe default for $cart to avoid "Undefined variable $cart"
+// Use CartService for consistent cart handling
 if (! isset($cart)) {
-if (auth()->check()) {
-$cart = \App\Models\CartItem::where('user_id', auth()->id())->with('product')->get();
+    $cartService = app(\App\Services\CartService::class);
+    $cart = $cartService->get();
+    $cartCount = $cartService->count();
 } else {
-$cart = collect(session('cart', []));
-}
+    $cartCount = $cart->sum('quantity') ?? 0;
 }
 @endphp
 
-<!-- Notification Bar -->
-<div id="notification" class="notification hidden fixed top-0 left-0 right-0 bg-gradient-to-r from-blue-900 to-blue-800 text-white py-3 px-4 text-center z-50">
-    <p class="text-sm font-medium">Free shipping on orders over $50! Use code: FREESHIP</p>
+<!-- Top Bar -->
+<div class="bg-gradient-to-r from-slate-800 to-slate-900 text-white py-2 text-sm">
+    <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center space-x-6">
+                <span class="flex items-center"><i class="fas fa-shipping-fast mr-2"></i>Free shipping on orders $100+</span>
+                <span class="flex items-center"><i class="fas fa-phone mr-2"></i>+1 (555) 123-4567</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span class="flex items-center"><i class="fas fa-envelope mr-2"></i>support@easycart.com</span>
+                <div class="flex space-x-3">
+                    <a href="#" class="hover:text-luxury-gold transition-colors"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="hover:text-luxury-gold transition-colors"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="hover:text-luxury-gold transition-colors"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-
-<!-- Header -->
-<header class="bg-white shadow-lg sticky top-0 z-50"> <!-- Changed background color -->
+<!-- Main Header -->
+<header class="bg-white/95 backdrop-blur-md shadow-xl sticky top-0 z-50 border-b border-gray-100">
     <div class="container mx-auto px-4">
-        <div class="flex items-center justify-between h-16">
+        <div class="flex items-center justify-between h-20">
             <!-- Logo -->
             <div class="flex-shrink-0">
-                <a href="{{ route('dashboard')}}">
-                    <h1 class="text-2xl font-bold text-[#1D293D]">EasyCart</h1>
+                <a href="{{ route('dashboard')}}" class="flex items-center space-x-3 group">
+                    <div class="w-12 h-12 premium-bg rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-gem text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-serif font-bold gradient-text">EasyCart</h1>
+                        <p class="text-xs text-gray-500 -mt-1">Premium Shopping</p>
+                    </div>
                 </a>
             </div>
 
             <!-- Search Bar - Desktop -->
-            <div class="hidden md:flex flex-1 max-w-lg mx-8 mb-3">
-                <div class="relative w-full">
-                    <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                    <input type="text" placeholder="Search products..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#ec4642] focus:border-transparent">
+            <div class="hidden lg:flex flex-1 max-w-2xl mx-8">
+                <div class="relative w-full group">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-400 group-focus-within:text-primary-600 transition-colors"></i>
+                    </div>
+                    <input type="text" 
+                           placeholder="Search for luxury products..." 
+                           class="w-full pl-12 pr-6 py-4 border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-500 transition-all duration-300 bg-gray-50 hover:bg-white text-gray-900 placeholder-gray-500">
+                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center">
+                        <button class="btn-premium text-white px-6 py-2 rounded-xl font-medium hover-lift">
+                            Search
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Icons -->
-            <div class="flex items-center space-x-4">
-                <button class="text-gray-600 hover:text-gray-900 transition md:hidden">
-                    <i class="fas fa-search text-xl"></i>
+            <!-- Desktop Navigation Icons -->
+            <div class="hidden lg:flex items-center space-x-6">
+                <!-- Wishlist -->
+                <button class="relative group p-2 hover:bg-gray-100 rounded-xl transition-colors">
+                    <i class="fas fa-heart text-xl text-gray-600 group-hover:text-red-500 transition-colors"></i>
+                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-pulse">3</span>
                 </button>
 
-                <!-- User Dropdown -->
+                <!-- User Account -->
                 <div class="relative">
-                    <button id="userDropdownToggle" class="text-gray-600 hover:text-gray-900 transition flex items-center">
-                        <i class="fas fa-user text-xl"></i>
+                    <button id="userDropdownToggle" class="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded-xl transition-colors group">
+                        @auth
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 flex items-center justify-center">
+                                <span class="text-white text-sm font-semibold">{{ substr(Auth::user()->name, 0, 1) }}</span>
+                            </div>
+                            <span class="hidden xl:block font-medium text-gray-700 group-hover:text-gray-900">{{ Auth::user()->name }}</span>
+                        @else
+                            <i class="fas fa-user text-xl text-gray-600 group-hover:text-gray-900 transition-colors"></i>
+                            <span class="hidden xl:block font-medium text-gray-700 group-hover:text-gray-900">Account</span>
+                        @endauth
+                        <i class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-gray-600 transition-colors"></i>
                     </button>
 
-                    <!-- Dropdown Menu -->
-                    <div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                    <!-- Enhanced Dropdown Menu -->
+                    <div id="userDropdown" class="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl py-4 z-50 opacity-0 invisible transform scale-95 transition-all duration-300 border border-gray-100">
                         @auth
-                        <div class="px-4 py-2 border-b">
-                            <p class="text-sm font-medium text-gray-900">Welcome, {{ Auth::user()->name }}</p>
+                        <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-primary-50 to-primary-100">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 flex items-center justify-center">
+                                    <span class="text-white font-bold">{{ substr(Auth::user()->name, 0, 1) }}</span>
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-gray-900">{{ Auth::user()->name }}</p>
+                                    <p class="text-sm text-gray-600">{{ Auth::user()->email }}</p>
+                                </div>
+                            </div>
                         </div>
-                        <a href="{{ route('dashboard') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            <i class="fas fa-tachometer-alt mr-2"></i> Dashboard
-                        </a>
-                        <a href="{{ route('orders.history') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            <i class="fas fa-shopping-bag mr-2"></i> My Orders
-                        </a>
-                        <a href="{{ route('cart.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            <i class="fas fa-shopping-cart mr-2"></i> My Cart
-                        </a>
-                        <div class="border-t my-1"></div>
-                        <form action="{{ route('logout') }}" method="POST" class="block">
-                            @csrf
-                            <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                <i class="fas fa-sign-out-alt mr-2"></i> Logout
-                            </button>
-                        </form>
+                        <div class="py-2">
+                            <a href="{{ route('dashboard') }}" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-50 hover:text-primary-600 transition-colors">
+                                <i class="fas fa-tachometer-alt mr-3 w-4"></i> Dashboard
+                            </a>
+                            <a href="{{ route('orders.history') }}" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-50 hover:text-primary-600 transition-colors">
+                                <i class="fas fa-shopping-bag mr-3 w-4"></i> My Orders
+                            </a>
+                            <a href="{{ route('cart.index') }}" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-50 hover:text-primary-600 transition-colors">
+                                <i class="fas fa-shopping-cart mr-3 w-4"></i> My Cart
+                            </a>
+                            <a href="#" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-50 hover:text-primary-600 transition-colors">
+                                <i class="fas fa-cog mr-3 w-4"></i> Settings
+                            </a>
+                        </div>
+                        <div class="border-t border-gray-100 pt-2">
+                            <form action="{{ route('logout') }}" method="POST" class="block">
+                                @csrf
+                                <button type="submit" class="flex items-center w-full px-6 py-3 text-red-600 hover:bg-red-50 transition-colors">
+                                    <i class="fas fa-sign-out-alt mr-3 w-4"></i> Sign Out
+                                </button>
+                            </form>
+                        </div>
                         @else
-                        <div class="px-4 py-2 border-b">
-                            <p class="text-sm font-medium text-gray-900">Welcome, Guest</p>
+                        <div class="px-6 py-4 text-center border-b border-gray-100">
+                            <h3 class="font-semibold text-gray-900 mb-1">Welcome to EasyCart</h3>
+                            <p class="text-sm text-gray-600">Sign in to access your account</p>
                         </div>
-                        <a href="#" id="loginBtn" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            <i class="fas fa-sign-in-alt mr-2"></i> Login
-                        </a>
-                        <a href="#" id="signupBtn" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            <i class="fas fa-user-plus mr-2"></i> Sign Up
-                        </a>
+                        <div class="py-2">
+                            <a href="#" id="loginBtn" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-50 hover:text-primary-600 transition-colors">
+                                <i class="fas fa-sign-in-alt mr-3 w-4"></i> Sign In
+                            </a>
+                            <a href="#" id="signupBtn" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-50 hover:text-primary-600 transition-colors">
+                                <i class="fas fa-user-plus mr-3 w-4"></i> Create Account
+                            </a>
+                        </div>
                         @endauth
                     </div>
                 </div>
 
-                <!-- Cart Badge -->
-                <button id="cartToggle" class="relative">
-                    <i class="fas fa-shopping-cart text-xl"></i>
-                    <span id="cartCount" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                        {{ count($cart) }}
+                <!-- Cart -->
+                <button id="cartToggle" class="relative group p-2 hover:bg-gray-100 rounded-xl transition-colors">
+                    <i class="fas fa-shopping-bag text-xl text-gray-600 group-hover:text-primary-600 transition-colors"></i>
+                    <span id="cartCount" class="absolute -top-1 -right-1 bg-primary-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold animate-bounce">
+                        {{ $cartCount }}
                     </span>
                 </button>
-
-                <button id="mobileMenuToggle" class="md:hidden text-gray-600">
-                    <i class="fas fa-bars text-xl"></i>
-                </button>
             </div>
+
+            <!-- Mobile Menu Button -->
+            <button id="mobileMenuToggle" class="lg:hidden p-2 hover:bg-gray-100 rounded-xl transition-colors">
+                <i class="fas fa-bars text-xl text-gray-600"></i>
+            </button>
         </div>
 
-        <!-- Navigation - Desktop -->
-        <nav class="hidden md:block border-t border-gray-200">
-            <div class="flex items-center justify-center space-x-8 py-2">
-                <a href="{{ route('electronics') }}" class="text-[#1D293D] hover:text-[#ec4642]">Electronics</a>
-                <a href="{{ route('fashion') }}" class="text-[#1D293D] hover:text-[#ec4642]">Fashion</a>
-                <a href="{{ route('home_garden') }}" class="text-[#1D293D] hover:text-[#ec4642]">Home & Garden</a>
-                <a href="{{ route('sports') }}" class="text-[#1D293D] hover:text-[#ec4642]">Sports</a>
-                <a href="{{ route('beauty') }}" class="text-[#1D293D] hover:text-[#ec4642]">Beauty</a>
-                <a href="{{ route('books') }}" class="text-[#1D293D] hover:text-[#ec4642]">Books</a>
+        <!-- Main Navigation - Desktop -->
+        <nav class="hidden lg:block border-t border-gray-100 py-4">
+            <div class="flex items-center justify-center space-x-12">
+                <a href="{{ route('electronics') }}" class="text-gray-700 hover:text-primary-600 font-medium transition-colors flex items-center space-x-2 group">
+                    <i class="fas fa-laptop text-sm group-hover:text-primary-600"></i>
+                    <span>Electronics</span>
+                </a>
+                <a href="{{ route('fashion') }}" class="text-gray-700 hover:text-primary-600 font-medium transition-colors flex items-center space-x-2 group">
+                    <i class="fas fa-tshirt text-sm group-hover:text-primary-600"></i>
+                    <span>Fashion</span>
+                </a>
+                <a href="{{ route('home_garden') }}" class="text-gray-700 hover:text-primary-600 font-medium transition-colors flex items-center space-x-2 group">
+                    <i class="fas fa-home text-sm group-hover:text-primary-600"></i>
+                    <span>Home & Garden</span>
+                </a>
+                <a href="{{ route('sports') }}" class="text-gray-700 hover:text-primary-600 font-medium transition-colors flex items-center space-x-2 group">
+                    <i class="fas fa-dumbbell text-sm group-hover:text-primary-600"></i>
+                    <span>Sports</span>
+                </a>
+                <a href="{{ route('beauty') }}" class="text-gray-700 hover:text-primary-600 font-medium transition-colors flex items-center space-x-2 group">
+                    <i class="fas fa-spa text-sm group-hover:text-primary-600"></i>
+                    <span>Beauty</span>
+                </a>
+                <a href="{{ route('books') }}" class="text-gray-700 hover:text-primary-600 font-medium transition-colors flex items-center space-x-2 group">
+                    <i class="fas fa-book text-sm group-hover:text-primary-600"></i>
+                    <span>Books</span>
+                </a>
+                <a href="{{ route('all.products') }}" class="text-gray-700 hover:text-primary-600 font-medium transition-colors flex items-center space-x-2 group">
+                    <i class="fas fa-th-large text-sm group-hover:text-primary-600"></i>
+                    <span>All Products</span>
+                </a>
             </div>
         </nav>
+    </div>
+</header>
+
+<!-- Mobile Menu -->
+<div id="mobileMenu" class="fixed top-0 left-0 w-full h-full bg-white z-50 transform -translate-x-full transition-transform duration-300 lg:hidden">
+    <div class="flex justify-between items-center p-6 border-b">
+        <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 premium-bg rounded-lg flex items-center justify-center">
+                <i class="fas fa-gem text-white text-sm"></i>
+            </div>
+            <h2 class="text-xl font-serif font-bold gradient-text">EasyCart</h2>
+        </div>
+        <button id="closeMobileMenu" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            <i class="fas fa-times text-xl text-gray-600"></i>
+        </button>
+    </div>
+    
+    <div class="p-6">
+        <!-- Mobile Search -->
+        <div class="relative mb-6">
+            <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            <input type="text" placeholder="Search products..." class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+        </div>
+        
+        <!-- Mobile Navigation -->
+        <nav class="space-y-4">
+            <a href="{{ route('electronics') }}" class="flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-xl transition-colors">
+                <i class="fas fa-laptop text-primary-600"></i>
+                <span class="font-medium">Electronics</span>
+            </a>
+            <a href="{{ route('fashion') }}" class="flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-xl transition-colors">
+                <i class="fas fa-tshirt text-primary-600"></i>
+                <span class="font-medium">Fashion</span>
+            </a>
+            <a href="{{ route('home_garden') }}" class="flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-xl transition-colors">
+                <i class="fas fa-home text-primary-600"></i>
+                <span class="font-medium">Home & Garden</span>
+            </a>
+            <a href="{{ route('sports') }}" class="flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-xl transition-colors">
+                <i class="fas fa-dumbbell text-primary-600"></i>
+                <span class="font-medium">Sports</span>
+            </a>
+            <a href="{{ route('beauty') }}" class="flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-xl transition-colors">
+                <i class="fas fa-spa text-primary-600"></i>
+                <span class="font-medium">Beauty</span>
+            </a>
+            <a href="{{ route('books') }}" class="flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-xl transition-colors">
+                <i class="fas fa-book text-primary-600"></i>
+                <span class="font-medium">Books</span>
+            </a>
+        </nav>
+        
+        @auth
+        <div class="mt-8 pt-6 border-t border-gray-200">
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 flex items-center justify-center">
+                    <span class="text-white font-bold">{{ substr(Auth::user()->name, 0, 1) }}</span>
+                </div>
+                <div>
+                    <p class="font-semibold text-gray-900">{{ Auth::user()->name }}</p>
+                    <p class="text-sm text-gray-600">{{ Auth::user()->email }}</p>
+                </div>
+            </div>
+            <div class="space-y-2">
+                <a href="{{ route('dashboard') }}" class="flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-xl transition-colors">
+                    <i class="fas fa-tachometer-alt text-gray-600"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ route('orders.history') }}" class="flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-xl transition-colors">
+                    <i class="fas fa-shopping-bag text-gray-600"></i>
+                    <span>My Orders</span>
+                </a>
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="flex items-center space-x-3 p-3 hover:bg-red-50 rounded-xl transition-colors w-full text-left text-red-600">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Sign Out</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+        @else
+        <div class="mt-8 pt-6 border-t border-gray-200 space-y-3">
+            <button id="mobileLoginBtn" class="w-full btn-premium text-white py-3 rounded-xl font-medium">Sign In</button>
+            <button id="mobileSignupBtn" class="w-full border-2 border-primary-600 text-primary-600 py-3 rounded-xl font-medium hover:bg-primary-50 transition-colors">Create Account</button>
+        </div>
+        @endauth
+    </div>
+</div>
 
     </div>
 </header>
@@ -118,106 +285,148 @@ $cart = collect(session('cart', []));
 
 
 <!-- Login Modal -->
-<div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
-        <div class="p-6">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold text-gray-900">Login to Your Account</h3>
-                <button id="closeLoginModal" class="text-gray-500 hover:text-gray-700">
+<div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 opacity-0 invisible transition-all duration-300">
+    <div class="bg-white rounded-2xl luxury-shadow w-full max-w-md mx-4 transform scale-95 transition-transform duration-300">
+        <!-- Modal Header -->
+        <div class="premium-bg p-6 rounded-t-2xl text-white">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="text-2xl font-bold">Welcome Back</h3>
+                    <p class="text-blue-100 mt-1">Sign in to your premium account</p>
+                </div>
+                <button id="closeLoginModal" class="text-white hover:text-gray-200 transition-colors p-2 hover:bg-white/10 rounded-lg">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
+        </div>
 
-
-            <!-- ✅ Success Popup -->
+        <div class="p-8">
+            <!-- Success/Error Messages -->
             @if(session('success'))
-            <div class="fixed top-0 left-0 right-0 z-50 bg-green-100 border border-green-400 text-green-800 px-4 py-3 text-center">
-                {{ session('success') }}
+            <div class="mb-6 p-4 bg-green-50 border border-green-200 text-green-800 rounded-xl animate-fade-in">
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle mr-3"></i>
+                    {{ session('success') }}
+                </div>
             </div>
             @endif
 
             @if($errors->any())
-            <div class="mb-4 p-3 bg-red-100 text-red-800 rounded">
-                {{ $errors->first() }}
+            <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-800 rounded-xl animate-fade-in">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-circle mr-3"></i>
+                    {{ $errors->first() }}
+                </div>
             </div>
             @endif
 
 
-            <form method="POST" action="{{ route('login') }}">
+            <form method="POST" action="{{ route('login') }}" class="space-y-6">
                 @csrf
 
-                <div class="mb-4">
-                    <label for="login" class="block text-gray-700 font-medium mb-2">Username or Email</label>
-                    <input type="text" name="login" id="login" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent" placeholder="Username or Email" required>
-                    @error('login')
-                    <span class="text-red-500 text-sm">{{ $message }}</span>
-                    @enderror
-                </div>
-
-                <div class="mb-6">
-                    <label for="password" class="block text-gray-700 font-medium mb-2">Password</label>
-                    <input type="password" name="password" id="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent" placeholder="••••••••" required>
-                    @error('password')
-                    <span class="text-red-500 text-sm">{{ $message }}</span>
-                    @enderror
-                </div>
-
-                <div class="flex items-center justify-between mb-6">
-                    <div class="flex items-center">
-                        <input type="checkbox" name="remember" id="remember" class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded">
-                        <label for="remember" class="ml-2 block text-sm text-gray-700">Remember me</label>
+                <div class="space-y-2">
+                    <label for="login" class="block text-sm font-medium text-gray-700">Username or Email</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-user text-gray-400"></i>
+                        </div>
+                        <input type="text" name="login" id="login" 
+                               class="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-500 transition-all duration-300" 
+                               placeholder="Enter your username or email" required>
                     </div>
+                    @error('login')
+                    <p class="text-red-600 text-sm flex items-center mt-1">
+                        <i class="fas fa-exclamation-circle mr-1"></i>
+                        {{ $message }}
+                    </p>
+                    @enderror
                 </div>
 
-                <button type="submit" class="w-full btn-secondary text-white px-8 py-2 rounded-lg font-medium gradient-bg">
-                    Sign In
+                <div class="space-y-2">
+                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-lock text-gray-400"></i>
+                        </div>
+                        <input type="password" name="password" id="password" 
+                               class="w-full pl-10 pr-12 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-500 transition-all duration-300" 
+                               placeholder="Enter your password" required>
+                        <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center" onclick="togglePassword('password')">
+                            <i class="fas fa-eye text-gray-400 hover:text-gray-600"></i>
+                        </button>
+                    </div>
+                    @error('password')
+                    <p class="text-red-600 text-sm flex items-center mt-1">
+                        <i class="fas fa-exclamation-circle mr-1"></i>
+                        {{ $message }}
+                    </p>
+                    @enderror
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <input type="checkbox" name="remember" id="remember" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                        <label for="remember" class="ml-2 block text-sm text-gray-700">Keep me signed in</label>
+                    </div>
+                    <a href="#" class="text-sm text-primary-600 hover:text-primary-700 font-medium">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="w-full btn-premium text-white py-3 rounded-xl font-semibold text-lg hover-lift">
+                    Sign In to EasyCart
                 </button>
             </form>
 
-            <div class="mt-6 text-center">
-                <p class="text-sm text-gray-600">
-                    Don't have an account?
-                    <a href="#" id="switchToSignup" class="font-medium text-[#ec4642]">Sign up</a>
-                </p>
-            </div>
-
-            <div class="mt-6">
+            <div class="mt-8">
                 <div class="relative">
                     <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-gray-300"></div>
+                        <div class="w-full border-t border-gray-200"></div>
                     </div>
                     <div class="relative flex justify-center text-sm">
-                        <span class="px-2 bg-white text-gray-500">Or continue with</span>
+                        <span class="px-4 bg-white text-gray-500 font-medium">Or continue with</span>
                     </div>
                 </div>
 
-                <div class="mt-6 grid grid-cols-3 gap-3">
-                    <button class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                        <i class="fab fa-google text-red-500"></i>
+                <div class="mt-6 grid grid-cols-3 gap-4">
+                    <button class="flex justify-center items-center py-3 border-2 border-gray-200 rounded-xl hover:border-gray-300 hover:bg-gray-50 transition-all duration-300 group">
+                        <i class="fab fa-google text-xl text-red-500 group-hover:scale-110 transition-transform"></i>
                     </button>
-                    <button class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                        <i class="fab fa-facebook-f text-blue-600"></i>
+                    <button class="flex justify-center items-center py-3 border-2 border-gray-200 rounded-xl hover:border-gray-300 hover:bg-gray-50 transition-all duration-300 group">
+                        <i class="fab fa-facebook-f text-xl text-blue-600 group-hover:scale-110 transition-transform"></i>
                     </button>
-                    <button class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                        <i class="fab fa-twitter text-blue-400"></i>
+                    <button class="flex justify-center items-center py-3 border-2 border-gray-200 rounded-xl hover:border-gray-300 hover:bg-gray-50 transition-all duration-300 group">
+                        <i class="fab fa-apple text-xl text-gray-800 group-hover:scale-110 transition-transform"></i>
                     </button>
                 </div>
+            </div>
+
+            <div class="mt-8 text-center">
+                <p class="text-gray-600">
+                    New to EasyCart? 
+                    <button id="switchToSignup" class="font-semibold text-primary-600 hover:text-primary-700 transition-colors">Create an account</button>
+                </p>
             </div>
         </div>
     </div>
 </div>
 
 
-<!-- ✅ Signup Modal -->
-<div id="signupModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden overflow-y-auto p-4">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-auto my-auto max-h-[90vh] overflow-y-auto">
-        <div class="p-6">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold text-gray-900">Create an Account</h3>
-                <button id="closeSignupModal" class="text-gray-500 hover:text-gray-700">
+<!-- Signup Modal -->
+<div id="signupModal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 opacity-0 invisible transition-all duration-300 overflow-y-auto p-4">
+    <div class="bg-white rounded-2xl luxury-shadow w-full max-w-lg mx-auto my-8 transform scale-95 transition-transform duration-300">
+        <!-- Modal Header -->
+        <div class="premium-bg p-6 rounded-t-2xl text-white">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="text-2xl font-bold">Join EasyCart</h3>
+                    <p class="text-blue-100 mt-1">Create your premium account</p>
+                </div>
+                <button id="closeSignupModal" class="text-white hover:text-gray-200 transition-colors p-2 hover:bg-white/10 rounded-lg">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
+        </div>
+
+        <div class="p-8">
 
             <form method="POST" action="{{ route('register') }}">
                 @csrf
@@ -394,6 +603,7 @@ $cart = collect(session('cart', []));
         function renderCart(cart) {
             cartItemsContainer.innerHTML = '';
             let subtotal = 0;
+            let totalCount = 0;
 
             if (cart.length === 0) {
                 cartItemsContainer.innerHTML = `
@@ -415,33 +625,39 @@ $cart = collect(session('cart', []));
             }
 
             cart.forEach(item => {
-                subtotal += item.quantity * parseFloat(item.product.amount);
+                // Handle different cart data structures (session vs database)
+                const product = item.product || item;
+                const quantity = item.quantity || 1;
+                const price = item.price || product.amount || 0;
+                
+                subtotal += quantity * parseFloat(price);
+                totalCount += quantity;
 
                 const div = document.createElement('div');
                 div.className = 'group bg-white rounded-xl p-6 mb-4 shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 hover:border-[#ec4642]/20';
                 div.innerHTML = `
                     <div class="flex items-center space-x-4">
                         <div class="relative overflow-hidden rounded-lg">
-                            <img src="${item.product.image ? '/storage/' + item.product.image : 'https://via.placeholder.com/80x80/f8fafc/64748b?text=No+Image'}" class="w-20 h-20 object-cover rounded-lg group-hover:scale-105 transition-transform duration-300">
+                            <img src="${product.image ? '/storage/' + product.image : 'https://via.placeholder.com/80x80/f8fafc/64748b?text=No+Image'}" class="w-20 h-20 object-cover rounded-lg group-hover:scale-105 transition-transform duration-300">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <h4 class="font-semibold text-[#1D293D] text-base truncate group-hover:text-[#ec4642] transition-colors duration-300 mb-2">${item.product.name}</h4>
-                            <p class="text-[#ec4642] font-bold text-base mb-3">TK ${parseFloat(item.product.amount).toFixed(2)}</p>
+                            <h4 class="font-semibold text-[#1D293D] text-base truncate group-hover:text-[#ec4642] transition-colors duration-300 mb-2">${product.name}</h4>
+                            <p class="text-[#ec4642] font-bold text-base mb-3">TK ${parseFloat(price).toFixed(2)}</p>
                             <div class="flex items-center space-x-3">
-                                <button onclick="updateCart(${item.product.id}, ${item.quantity - 1})" 
+                                <button onclick="updateCart(${product.id || item.product_id}, ${quantity - 1})" 
                                         class="w-9 h-9 flex items-center justify-center bg-[#1D293D] hover:bg-[#ec4642] text-white rounded-full transition-all duration-300 text-sm">
                                     <i class="fas fa-minus"></i>
                                 </button>
-                                <span class="bg-gradient-to-r from-[#1D293D] to-[#ec4642] text-white px-4 py-2 rounded-full text-sm font-bold min-w-[3rem] text-center">${item.quantity}</span>
-                                <button onclick="updateCart(${item.product.id}, ${item.quantity + 1})" 
+                                <span class="bg-gradient-to-r from-[#1D293D] to-[#ec4642] text-white px-4 py-2 rounded-full text-sm font-bold min-w-[3rem] text-center">${quantity}</span>
+                                <button onclick="updateCart(${product.id || item.product_id}, ${quantity + 1})" 
                                         class="w-9 h-9 flex items-center justify-center bg-[#1D293D] hover:bg-[#ec4642] text-white rounded-full transition-all duration-300 text-sm">
                                     <i class="fas fa-plus"></i>
                                 </button>
                             </div>
                         </div>
                         <div class="flex flex-col space-y-2">
-                            <button onclick="removeCart(${item.product.id})" 
+                            <button onclick="removeCart(${product.id || item.product_id})" 
                                     class="w-9 h-9 flex items-center justify-center bg-red-100 text-red-500 hover:bg-red-500 hover:text-white rounded-full transition-all duration-300">
                                 <i class="fas fa-trash text-sm"></i>
                             </button>
@@ -452,7 +668,7 @@ $cart = collect(session('cart', []));
             });
 
             cartSubtotalEl.innerText = `TK ${subtotal.toFixed(2)}`;
-            cartCountEl.innerText = cart.length;
+            cartCountEl.innerText = totalCount;
         }
 
         // Add to cart

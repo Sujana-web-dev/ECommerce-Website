@@ -1,0 +1,76 @@
+/* Additional styles for profile images */
+.profile-avatar {
+    object-fit: cover;
+    object-position: center;
+    background-color: #f3f4f6;
+}
+
+.profile-avatar:hover {
+    transform: scale(1.02);
+    transition: transform 0.2s ease-in-out;
+}
+
+/* Fallback for when image fails to load */
+.profile-avatar-fallback {
+    display: none;
+}
+
+/* Profile image preview styles */
+.profile-image-preview {
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-image-preview:hover .profile-image-overlay {
+    opacity: 1;
+}
+
+.profile-image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    cursor: pointer;
+}
+
+.profile-image-overlay i {
+    color: white;
+    font-size: 1.2rem;
+}
+
+/* Loading state for image upload */
+.profile-image-loading {
+    position: relative;
+}
+
+.profile-image-loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+/* Animation for successful upload */
+@keyframes profileImageSuccess {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.profile-image-success {
+    animation: profileImageSuccess 0.5s ease-in-out;
+}

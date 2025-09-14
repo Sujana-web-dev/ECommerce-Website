@@ -1,5 +1,5 @@
 <!-- Special Offer Section -->
-<section class="py-12 gradient-bg text-white">
+<!-- <section class="py-12 gradient-bg text-white">
     <div class="container px-4">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
@@ -33,4 +33,4 @@
             </div>
         </div>
     </div>
-</section>
+</section> -->

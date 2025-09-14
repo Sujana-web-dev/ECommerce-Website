@@ -49,6 +49,27 @@
                         <!-- Overlay Gradient -->
                         <div class="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
+                        <!-- Out of Stock Overlay -->
+                        @if($product->available_stock <= 0)
+                        <div class="absolute inset-0 bg-black/70 flex items-center justify-center z-20">
+                            <div class="text-center">
+                                <div class="bg-red-600 text-white px-6 py-3 rounded-lg font-bold text-lg shadow-lg mb-2">
+                                    <i class="fas fa-times-circle mr-2"></i>OUT OF STOCK
+                                </div>
+                                <p class="text-white text-sm">This item is currently unavailable</p>
+                            </div>
+                        </div>
+                        @endif
+
+                        <!-- Low Stock Badge -->
+                        @if($product->available_stock > 0 && $product->available_stock <= 5)
+                        <div class="absolute top-4 left-4 z-10">
+                            <span class="bg-orange-500 text-white px-3 py-1 text-xs font-bold rounded-full shadow-lg animate-pulse">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>Only {{ $product->available_stock }} left
+                            </span>
+                        </div>
+                        @endif
+
                         <!-- Category Badge -->
                         <div class="absolute top-4 left-4">
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-[#1D293D] to-[#243447] text-white shadow-lg">
@@ -72,13 +93,32 @@
 
                         <!-- Add to Cart Button - Slides up on hover -->
                         <div class="absolute inset-x-4 bottom-4 transform translate-y-8 group-hover:translate-y-0 transition-all duration-500 opacity-0 group-hover:opacity-100">
-                            <button onclick="addToCart('{{ $product->id }}')" 
-                                    class="w-full bg-gradient-to-r from-[#ec4642] to-[#c0392b] text-white py-3 rounded-2xl font-bold text-sm shadow-xl hover:from-[#d63031] hover:to-[#a93226] transition-all duration-300 transform hover:scale-105">
-                                <div class="flex items-center justify-center space-x-2">
-                                    <i class="fas fa-shopping-cart"></i>
-                                    <span>Add to Cart</span>
-                                </div>
-                            </button>
+                            @if($product->available_stock > 0)
+                                <button 
+                                    class="add-to-cart-btn w-full bg-gradient-to-r from-[#ec4642] to-[#c0392b] text-white py-3 rounded-2xl font-bold text-sm shadow-xl hover:from-[#d63031] hover:to-[#a93226] transition-all duration-300 transform hover:scale-105"
+                                    data-product-id="{{ $product->id }}"
+                                    data-product-name="{{ $product->name }}"
+                                    data-product-price="{{ $product->amount ?? 0 }}"
+                                    data-product-image="{{ $product->image }}"
+                                    data-product-stock="{{ $product->available_stock }}"
+                                >
+                                >
+                                    <div class="flex items-center justify-center space-x-2">
+                                        <i class="fas fa-shopping-cart"></i>
+                                        <span>Add to Cart</span>
+                                    </div>
+                                </button>
+                            @else
+                                <button 
+                                    class="w-full bg-gray-400 text-white py-3 rounded-2xl font-bold text-sm cursor-not-allowed"
+                                    disabled
+                                >
+                                    <div class="flex items-center justify-center space-x-2">
+                                        <i class="fas fa-ban"></i>
+                                        <span>Out of Stock</span>
+                                    </div>
+                                </button>
+                            @endif
                         </div>
                     </div>
 
@@ -112,8 +152,12 @@
                                 </span>
                                 @endif
                             </div>
-                            <span class="text-xs font-semibold {{ $product->stock > 0 ? 'text-green-600 bg-green-100' : 'text-red-600 bg-red-100' }} px-2 py-1 rounded-full">
-                                {{ $product->stock > 0 ? 'In Stock' : 'Out of Stock' }}
+                            <span class="text-xs font-semibold {{ $product->available_stock > 0 ? 'text-green-600 bg-green-100' : 'text-red-600 bg-red-100' }} px-2 py-1 rounded-full">
+                                @if($product->available_stock > 0)
+                                    {{ $product->stock }} in stock
+                                @else
+                                    Out of Stock
+                                @endif
                             </span>
                         </div>
 

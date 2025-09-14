@@ -3,159 +3,244 @@ namespace App\Http\Controllers\Cart;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Services\CartService;
 use App\Models\Product;
 
 class CartController extends Controller
 {
+    protected $cartService;
+
+    public function __construct(CartService $cartService)
+    {
+        $this->cartService = $cartService;
+    }
+
     public function index()
     {
-         // Load products from DB if user is logged in OR from session for guest
-        if (Auth::check()) {
-            $cart = \App\Models\CartItem::where('user_id', Auth::id())->with('product')->get();
-        } else {
-            $cart = collect(session('cart', []));
+        $cart = $this->cartService->get();
+        $cartCount = $this->cartService->count();
+        $cartTotal = $this->cartService->total();
+
+        if (request()->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'cart' => $cart,
+                'cart_count' => $cartCount,
+                'cart_total' => $cartTotal
+            ]);
         }
-        // $cart = collect(session()->get('cart', []));
-        return view('frontend.cart.index', compact('cart'));
+
+        return view('frontend.cart.index', compact('cart', 'cartCount', 'cartTotal'));
     }
 
     public function add(Request $request)
     {
         $request->validate([
             'product_id' => 'required|integer|exists:products,id',
-            'quantity'   => 'required|integer|min:1',
+            'quantity' => 'required|integer|min:1',
+            'options' => 'sometimes|array'
         ]);
 
-        $product = Product::findOrFail($request->product_id);
-
-        if (Auth::check()) {
-            // For authenticated users, store in database
-            $cartItem = \App\Models\CartItem::where('user_id', Auth::id())
-                ->where('product_id', $product->id)
-                ->first();
-
-            if ($cartItem) {
-                $cartItem->quantity += $request->quantity;
-                $cartItem->save();
-            } else {
-                \App\Models\CartItem::create([
-                    'user_id' => Auth::id(),
-                    'product_id' => $product->id,
-                    'quantity' => $request->quantity,
-                ]);
+        try {
+            // Check if product exists and get it
+            $product = Product::findOrFail($request->product_id);
+            
+            // Check if product is in stock
+            if (!$product->isInStock()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Sorry, this product is currently out of stock.',
+                    'stock_error' => true,
+                    'product_name' => $product->name
+                ], 400);
+            }
+            
+            // Check if requested quantity is available
+            if ($product->stock < $request->quantity) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Sorry, only {$product->stock} items are available in stock.",
+                    'stock_error' => true,
+                    'available_stock' => $product->stock,
+                    'product_name' => $product->name
+                ], 400);
             }
 
-            // Get updated cart items for response
-            $cartItems = \App\Models\CartItem::where('user_id', Auth::id())->with('product')->get();
-            $cart = $cartItems->map(function($item) {
-                return [
-                    'product' => $item->product,
-                    'quantity' => $item->quantity
-                ];
-            })->toArray();
-        } else {
-            // For guest users, store in session
-            $cart = session()->get('cart', []);
-
-            if(isset($cart[$product->id])){
-                $cart[$product->id]['quantity'] += $request->quantity;
-            } else {
-                $cart[$product->id] = [
-                    'product' => $product,
-                    'quantity' => $request->quantity
-                ];
+            // Check current cart to see if adding more would exceed stock
+            $currentCartQuantity = $this->cartService->getProductQuantityInCart($request->product_id);
+            $totalQuantity = $currentCartQuantity + $request->quantity;
+            
+            if ($totalQuantity > $product->stock) {
+                $availableToAdd = $product->stock - $currentCartQuantity;
+                if ($availableToAdd <= 0) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "You already have the maximum available quantity ({$product->stock}) of this product in your cart.",
+                        'stock_error' => true,
+                        'product_name' => $product->name
+                    ], 400);
+                } else {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "You can only add {$availableToAdd} more of this item to your cart (you already have {$currentCartQuantity} in cart, stock available: {$product->stock}).",
+                        'stock_error' => true,
+                        'available_to_add' => $availableToAdd,
+                        'product_name' => $product->name
+                    ], 400);
+                }
             }
 
-            session()->put('cart', $cart);
+            $this->cartService->add(
+                $request->product_id,
+                $request->quantity,
+                $request->options ?? []
+            );
+
+            $cart = $this->cartService->get();
+            $cartCount = $this->cartService->count();
+            
+            // Get updated product information for stock display
+            $updatedProduct = Product::find($request->product_id);
+            $totalInCart = $this->cartService->getProductQuantityInCart($request->product_id);
+            $remainingStock = max(0, $updatedProduct->stock - $totalInCart);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Product added to cart successfully!',
+                'cart' => $cart,
+                'cart_count' => $cartCount,
+                'product_id' => $request->product_id,
+                'total_in_cart' => $totalInCart,
+                'remaining_stock' => $remainingStock,
+                'original_stock' => $updatedProduct->stock
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to add product to cart: ' . $e->getMessage()
+            ], 500);
         }
-
-        return response()->json([
-            'success' => true,
-            'cart' => array_values($cart),
-            'cart_count' => count($cart),
-            'message' => 'Product added to cart'
-        ]);
     }
 
     public function update(Request $request)
     {
         $request->validate([
             'product_id' => 'required|integer',
-            'quantity' => 'required|integer|min:1'
+            'quantity' => 'required|integer|min:1',
+            'options' => 'sometimes|array'
         ]);
 
-        if (Auth::check()) {
-            // For authenticated users, update in database
-            $cartItem = \App\Models\CartItem::where('user_id', Auth::id())
-                ->where('product_id', $request->product_id)
-                ->first();
+        try {
+            $this->cartService->update(
+                $request->product_id,
+                $request->quantity,
+                $request->options ?? []
+            );
 
-            if ($cartItem) {
-                $cartItem->quantity = $request->quantity;
-                $cartItem->save();
-            }
+            $cart = $this->cartService->get();
+            $cartCount = $this->cartService->count();
 
-            // Get updated cart items for response
-            $cartItems = \App\Models\CartItem::where('user_id', Auth::id())->with('product')->get();
-            $cart = $cartItems->map(function($item) {
-                return [
-                    'product' => $item->product,
-                    'quantity' => $item->quantity
-                ];
-            })->toArray();
-        } else {
-            // For guest users, update in session
-            $cart = session()->get('cart', []);
-            $id = $request->product_id;
-
-            if(isset($cart[$id])){
-                $cart[$id]['quantity'] = $request->quantity;
-                session()->put('cart', $cart);
-            }
+            return response()->json([
+                'success' => true,
+                'message' => 'Cart updated successfully!',
+                'cart' => $cart,
+                'cart_count' => $cartCount
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update cart: ' . $e->getMessage()
+            ], 500);
         }
-
-        return response()->json([
-            'success' => true,
-            'cart' => array_values($cart),
-            'cart_count' => count($cart)
-        ]);
     }
 
     public function remove(Request $request)
     {
         $request->validate([
-            'product_id' => 'required|integer'
+            'product_id' => 'required|integer',
+            'options' => 'sometimes|array'
         ]);
 
-        if (Auth::check()) {
-            // For authenticated users, remove from database
-            \App\Models\CartItem::where('user_id', Auth::id())
-                ->where('product_id', $request->product_id)
-                ->delete();
+        try {
+            $this->cartService->remove(
+                $request->product_id,
+                $request->options ?? []
+            );
 
-            // Get updated cart items for response
-            $cartItems = \App\Models\CartItem::where('user_id', Auth::id())->with('product')->get();
-            $cart = $cartItems->map(function($item) {
-                return [
-                    'product' => $item->product,
-                    'quantity' => $item->quantity
-                ];
-            })->toArray();
-        } else {
-            // For guest users, remove from session
-            $cart = session()->get('cart', []);
-            if(isset($cart[$request->product_id])){
-                unset($cart[$request->product_id]);
-                session()->put('cart', $cart);
-            }
+            $cart = $this->cartService->get();
+            $cartCount = $this->cartService->count();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Product removed from cart successfully!',
+                'cart' => $cart,
+                'cart_count' => $cartCount
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to remove product from cart: ' . $e->getMessage()
+            ], 500);
         }
+    }
 
-        return response()->json([
-            'success' => true, 
-            'message' => 'Product removed from cart.',
-            'cart' => array_values($cart),
-            'cart_count' => count($cart)
-        ]);
+    public function clear()
+    {
+        try {
+            $this->cartService->clear();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Cart cleared successfully!',
+                'cart' => [],
+                'cart_count' => 0
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to clear cart: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getStockStatus(Request $request)
+    {
+        try {
+            $productIds = $request->get('product_ids', []);
+            
+            if (empty($productIds)) {
+                // Get all products on current page if no specific IDs provided
+                $products = Product::whereIn('id', $productIds)->get();
+            } else {
+                // Get specific products
+                $products = Product::whereIn('id', $productIds)->get();
+            }
+
+            $stockStatus = [];
+            
+            foreach ($products as $product) {
+                $totalInCart = $this->cartService->getProductQuantityInCart($product->id);
+                $remainingStock = max(0, $product->stock - $totalInCart);
+                
+                $stockStatus[] = [
+                    'product_id' => $product->id,
+                    'original_stock' => $product->stock,
+                    'total_in_cart' => $totalInCart,
+                    'remaining_stock' => $remainingStock,
+                    'is_available' => $remainingStock > 0
+                ];
+            }
+
+            return response()->json([
+                'success' => true,
+                'stock_status' => $stockStatus
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get stock status: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

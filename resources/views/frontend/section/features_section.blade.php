@@ -1,155 +1,143 @@
-<!-- @extends('frontend.layouts.master')
-
-@section('content')
-<div class="container mt-4">
-    <h2>Your Cart</h2>
-
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-
-    @if(count($cart) > 0)
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Image</th>
-                <th>Name</th>
-                <th>Qty</th>
-                <th>Price</th>
-                <th>Total</th>
-                <th>Remove</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($cart as $id => $item)
-            <tr>
-                <td>
-                    @if($item['image'])
-                        <img src="{{ asset('storage/' . $item['image']) }}" width="60" alt="{{ $item['name'] ?? 'Product' }}"
-                             onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='inline-block';">
-                        <div class="d-inline-flex align-items-center justify-content-center bg-light" style="display:none;width:60px;height:60px;">
-                            <i class="fas fa-image text-muted"></i>
-                        </div>
-                    @else
-                        <div class="d-inline-flex align-items-center justify-content-center bg-light" style="width:60px;height:60px;">
-                            <i class="fas fa-image text-muted"></i>
-                        </div>
-                    @endif
-                </td>
-                <td>{{ $item['name'] }}</td>
-                <td>{{ $item['quantity'] }}</td>
-                <td>{{ $item['price'] }} ৳</td>
-                <td>{{ $item['price'] * $item['quantity'] }} ৳</td>
-                <td>
-                    <form action="{{ route('cart.remove', $id) }}" method="POST">
-                        @csrf
-                        <button type="submit" class="btn btn-danger btn-sm">Remove</button>
-                    </form>
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-    @else
-        <p>Your cart is empty!</p>
-    @endif
-</div>
-@endsection -->
-
-
-<!-- Shopping Cart Sidebar -->
-<!-- <div id="cartSidebar" class="fixed right-0 top-0 h-full w-full md:w-96 bg-white shadow-xl z-50 transform translate-x-full transition-transform duration-300">
-    <div class="p-6 border-b">
-        <div class="flex justify-between items-center">
-            <h3 class="text-xl font-bold text-gray-900">Your Cart</h3>
-            <button id="closeCart" class="text-gray-500 hover:text-gray-700">
-                <i class="fas fa-times text-xl"></i>
-            </button>
-        </div>
-    </div> -->
-
-    <!-- <div class="p-6 overflow-y-auto" style="height: calc(100% - 200px);">
-       
-        <div class="cart-item flex items-center mb-6 p-4 rounded-lg">
-            <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80" alt="Product" class="w-20 h-20 object-cover rounded-lg mr-4">
-            <div class="flex-grow">
-                <h4 class="font-bold text-gray-900">Premium Headphones</h4>
-                <p class="text-gray-600 text-sm">$129.99</p>
-            </div>
-            <div class="flex items-center">
-                <button class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-minus-circle"></i>
-                </button>
-                <span class="mx-2 font-medium">1</span>
-                <button class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-plus-circle"></i>
-                </button>
-            </div>
-            <button class="ml-4 text-gray-500 hover:text-red-500">
-                <i class="fas fa-trash-alt"></i>
-            </button>
+<!-- Premium Features Section -->
+<section class="py-20 bg-white relative overflow-hidden">
+    <!-- Background Elements -->
+    <div class="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-primary-50/30"></div>
+    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary-500 via-luxury-gold to-primary-600"></div>
+    
+    <div class="container mx-auto px-4 relative z-10">
+        <!-- Section Header -->
+        <div class="text-center mb-16" data-aos="fade-up">
+            <span class="text-primary-600 font-medium text-sm uppercase tracking-wider">Why Choose Us</span>
+            <h2 class="text-4xl lg:text-5xl font-bold text-gray-900 mt-4 mb-6 font-serif">
+                Premium Experience
+            </h2>
+            <p class="text-gray-600 text-lg max-w-3xl mx-auto">
+                We provide exceptional service and quality that sets us apart from the competition
+            </p>
         </div>
 
-        
-        <div class="cart-item flex items-center mb-6 p-4 rounded-lg">
-            <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80" alt="Product" class="w-20 h-20 object-cover rounded-lg mr-4">
-            <div class="flex-grow">
-                <h4 class="font-bold text-gray-900">Smart Watch Pro</h4>
-                <p class="text-gray-600 text-sm">$249.99</p>
+        <!-- Features Grid -->
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+            <!-- Free Shipping -->
+            <div class="text-center group" data-aos="fade-up" data-aos-delay="100">
+                <div class="relative mx-auto mb-6">
+                    <div class="w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                        <i class="fas fa-shipping-fast text-2xl text-white"></i>
+                    </div>
+                    <div class="absolute -top-2 -right-2 w-6 h-6 bg-luxury-gold rounded-full flex items-center justify-center">
+                        <i class="fas fa-check text-xs text-gray-900"></i>
+                    </div>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-3">Free Shipping</h3>
+                <p class="text-gray-600 leading-relaxed">
+                    Complimentary shipping on all orders over $100. Fast and reliable delivery worldwide.
+                </p>
             </div>
-            <div class="flex items-center">
-                <button class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-minus-circle"></i>
-                </button>
-                <span class="mx-2 font-medium">1</span>
-                <button class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-plus-circle"></i>
-                </button>
+
+            <!-- 24/7 Support -->
+            <div class="text-center group" data-aos="fade-up" data-aos-delay="200">
+                <div class="relative mx-auto mb-6">
+                    <div class="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                        <i class="fas fa-headset text-2xl text-white"></i>
+                    </div>
+                    <div class="absolute -top-2 -right-2 w-6 h-6 bg-luxury-gold rounded-full flex items-center justify-center">
+                        <i class="fas fa-clock text-xs text-gray-900"></i>
+                    </div>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-3">24/7 Support</h3>
+                <p class="text-gray-600 leading-relaxed">
+                    Round-the-clock customer service. Our dedicated team is always ready to help you.
+                </p>
             </div>
-            <button class="ml-4 text-gray-500 hover:text-red-500">
-                <i class="fas fa-trash-alt"></i>
-            </button>
+
+            <!-- Money Back -->
+            <div class="text-center group" data-aos="fade-up" data-aos-delay="300">
+                <div class="relative mx-auto mb-6">
+                    <div class="w-20 h-20 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                        <i class="fas fa-undo-alt text-2xl text-white"></i>
+                    </div>
+                    <div class="absolute -top-2 -right-2 w-6 h-6 bg-luxury-gold rounded-full flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-xs text-gray-900"></i>
+                    </div>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-3">Money Back</h3>
+                <p class="text-gray-600 leading-relaxed">
+                    30-day money-back guarantee. Shop with confidence knowing you're protected.
+                </p>
+            </div>
+
+            <!-- Premium Quality -->
+            <div class="text-center group" data-aos="fade-up" data-aos-delay="400">
+                <div class="relative mx-auto mb-6">
+                    <div class="w-20 h-20 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                        <i class="fas fa-medal text-2xl text-white"></i>
+                    </div>
+                    <div class="absolute -top-2 -right-2 w-6 h-6 bg-luxury-gold rounded-full flex items-center justify-center">
+                        <i class="fas fa-star text-xs text-gray-900"></i>
+                    </div>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-3">Premium Quality</h3>
+                <p class="text-gray-600 leading-relaxed">
+                    Carefully curated products from trusted brands. Quality is our top priority.
+                </p>
+            </div>
         </div>
 
-        
-        <div class="cart-item flex items-center mb-6 p-4 rounded-lg">
-            <img src="https://images.unsplash.com/photo-1583394838336-acd977736f90?ixlib=rb-4.0.3&auto=format&fit=crop&w=1471&q=80" alt="Product" class="w-20 h-20 object-cover rounded-lg mr-4">
-            <div class="flex-grow">
-                <h4 class="font-bold text-gray-900">Wireless Earbuds</h4>
-                <p class="text-gray-600 text-sm">$89.99</p>
+        <!-- Stats Section -->
+        <div class="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 rounded-3xl p-12 text-white" data-aos="fade-up" data-aos-delay="500">
+            <div class="grid md:grid-cols-4 gap-8 text-center">
+                <div class="group">
+                    <div class="text-4xl lg:text-5xl font-bold text-luxury-gold mb-2 font-serif">
+                        <span class="counter" data-target="50000">0</span>+
+                    </div>
+                    <p class="text-gray-300 font-medium">Happy Customers</p>
+                    <div class="w-16 h-1 bg-luxury-gold mx-auto mt-3 rounded-full group-hover:w-24 transition-all duration-300"></div>
+                </div>
+                
+                <div class="group">
+                    <div class="text-4xl lg:text-5xl font-bold text-luxury-gold mb-2 font-serif">
+                        <span class="counter" data-target="1000">0</span>+
+                    </div>
+                    <p class="text-gray-300 font-medium">Premium Products</p>
+                    <div class="w-16 h-1 bg-luxury-gold mx-auto mt-3 rounded-full group-hover:w-24 transition-all duration-300"></div>
+                </div>
+                
+                <div class="group">
+                    <div class="text-4xl lg:text-5xl font-bold text-luxury-gold mb-2 font-serif">
+                        <span class="counter" data-target="99">0</span>%
+                    </div>
+                    <p class="text-gray-300 font-medium">Satisfaction Rate</p>
+                    <div class="w-16 h-1 bg-luxury-gold mx-auto mt-3 rounded-full group-hover:w-24 transition-all duration-300"></div>
+                </div>
+                
+                <div class="group">
+                    <div class="text-4xl lg:text-5xl font-bold text-luxury-gold mb-2 font-serif">
+                        <span class="counter" data-target="25">0</span>+
+                    </div>
+                    <p class="text-gray-300 font-medium">Countries Served</p>
+                    <div class="w-16 h-1 bg-luxury-gold mx-auto mt-3 rounded-full group-hover:w-24 transition-all duration-300"></div>
+                </div>
             </div>
-            <div class="flex items-center">
-                <button class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-minus-circle"></i>
-                </button>
-                <span class="mx-2 font-medium">1</span>
-                <button class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-plus-circle"></i>
-                </button>
+        </div>
+
+        <!-- Trust Badges -->
+        <div class="flex flex-wrap justify-center items-center gap-8 mt-16 opacity-60" data-aos="fade-up" data-aos-delay="600">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-shield-alt text-2xl text-green-600"></i>
+                <span class="text-gray-600 font-medium">SSL Secured</span>
             </div>
-            <button class="ml-4 text-gray-500 hover:text-red-500">
-                <i class="fas fa-trash-alt"></i>
-            </button>
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-lock text-2xl text-blue-600"></i>
+                <span class="text-gray-600 font-medium">Privacy Protected</span>
+            </div>
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-certificate text-2xl text-purple-600"></i>
+                <span class="text-gray-600 font-medium">Certified Store</span>
+            </div>
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-award text-2xl text-orange-600"></i>
+                <span class="text-gray-600 font-medium">Award Winning</span>
+            </div>
         </div>
     </div>
-
-    <div class="absolute bottom-0 left-0 right-0 bg-white border-t p-6">
-        <div class="flex justify-between mb-4">
-            <span class="text-gray-600">Subtotal</span>
-            <span class="font-bold text-gray-900">$469.97</span>
-        </div>
-        <div class="flex justify-between mb-6">
-            <span class="text-gray-600">Shipping</span>
-            <span class="font-bold text-gray-900">$0.00</span>
-        </div>
-        <div class="flex justify-between mb-6">
-            <span class="text-lg font-bold text-gray-900">Total</span>
-            <span class="text-lg font-bold text-gray-900">$469.97</span>
-        </div>
-        <button class="btn-primary text-white w-full py-3 rounded-lg font-medium shadow-lg mb-3">
-            Proceed to Checkout
-        </button>
-        <button class="bg-white border border-gray-300 text-gray-800 w-full py-3 rounded-lg font-medium hover:bg-gray-50 transition">
-            Continue Shopping
-        </button>
-    </div> -->
+</section>

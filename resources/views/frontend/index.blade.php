@@ -9,7 +9,7 @@
 
 @include('frontend.section.product_section')
 
-@include('frontend.section.offer_sale')
+<!-- @include('frontend.section.offer_sale') -->
 
 @include('frontend.section.newsletter')
 

@@ -6,14 +6,7 @@
 
 @section('content')
 @php
-    // Get cart items for authenticated or guest user
-    if (! isset($cart)) {
-        if (auth()->check()) {
-            $cart = \App\Models\CartItem::where('user_id', auth()->id())->with('product')->get();
-        } else {
-            $cart = collect(session('cart', []));
-        }
-    }
+    // Cart data is now passed from CartController which uses CartService
     $cartItems = $cart;
     $subtotal = 0;
     $itemCount = 0;
@@ -43,35 +36,44 @@
                         <tbody class="divide-y divide-gray-100">
                         @foreach($cartItems as $item)
                             @php
-                                $product = isset($item->product) ? $item->product : (isset($item['product']) ? (object)$item['product'] : null);
-                                $quantity = isset($item->quantity) ? $item->quantity : (isset($item['quantity']) ? $item['quantity'] : 1);
+                                // Handle CartService data structure
+                                $product = $item['product'] ?? null;
+                                $quantity = $item['quantity'] ?? 1;
+                                $price = $item['price'] ?? ($product->amount ?? 0);
                                 $itemCount += $quantity;
-                                $lineTotal = $quantity * ($product ? $product->amount : 0);
+                                $lineTotal = $quantity * $price;
                                 $subtotal += $lineTotal;
                             @endphp
-                            <tr class="align-middle" data-product-id="{{ $product?->id }}">
+                            <tr class="align-middle" data-product-id="{{ $product?->id ?? $item['product_id'] }}">
                                 <td class="py-4">
                                     <div class="flex items-center gap-4">
                                         <img src="{{ $product?->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/64x64/f8fafc/64748b?text=No+Image' }}" alt="{{ $product?->name }}" class="w-16 h-16 object-cover rounded-lg border">
                                         <div>
                                             <div class="font-semibold text-[#1D293D] text-base">{{ $product?->name }}</div>
                                             <div class="text-xs text-gray-400 mt-1">{{ $product?->category?->name ?? '' }}</div>
-                                            <button class="text-[#ec4642] text-xs hover:underline mt-2 delete-btn" data-product-id="{{ $product?->id }}">Remove</button>
+                                            @if(isset($item['options']) && !empty($item['options']))
+                                                <div class="text-xs text-gray-500 mt-1">
+                                                    @foreach($item['options'] as $key => $value)
+                                                        <span class="inline-block bg-gray-100 px-2 py-1 rounded mr-1">{{ $key }}: {{ $value }}</span>
+                                                    @endforeach
+                                                </div>
+                                            @endif
+                                            <button class="text-[#ec4642] text-xs hover:underline mt-2 delete-btn" data-product-id="{{ $product?->id ?? $item['product_id'] }}">Remove</button>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="py-4 text-center">
                                     <div class="flex items-center justify-center gap-2">
-                                        <button class="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-[#ec4642] hover:text-white text-[#1D293D] rounded transition-all duration-200 text-base decrement-btn" data-product-id="{{ $product?->id }}" @if($quantity <= 1) disabled @endif>
+                                        <button class="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-[#ec4642] hover:text-white text-[#1D293D] rounded transition-all duration-200 text-base decrement-btn" data-product-id="{{ $product?->id ?? $item['product_id'] }}" @if($quantity <= 1) disabled @endif>
                                             <i class="fas fa-minus"></i>
                                         </button>
                                         <span class="px-3 py-1 border rounded text-base font-semibold min-w-[2.5rem] text-center">{{ $quantity }}</span>
-                                        <button class="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-[#ec4642] hover:text-white text-[#1D293D] rounded transition-all duration-200 text-base increment-btn" data-product-id="{{ $product?->id }}">
+                                        <button class="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-[#ec4642] hover:text-white text-[#1D293D] rounded transition-all duration-200 text-base increment-btn" data-product-id="{{ $product?->id ?? $item['product_id'] }}">
                                             <i class="fas fa-plus"></i>
                                         </button>
                                     </div>
                                 </td>
-                                <td class="py-4 text-center text-base text-gray-700">TK {{ number_format($product?->amount, 2) }}</td>
+                                <td class="py-4 text-center text-base text-gray-700">TK {{ number_format($price, 2) }}</td>
                                 <td class="py-4 text-center text-base text-gray-900 font-bold">TK {{ number_format($lineTotal, 2) }}</td>
                                 <td class="py-4"></td>
                             </tr>

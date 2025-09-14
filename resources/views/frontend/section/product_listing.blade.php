@@ -68,6 +68,27 @@
                                 <i class="fas fa-image text-gray-500 text-4xl"></i>
                             </div>
                         @endif
+
+                        <!-- Out of Stock Overlay -->
+                        @if(isset($product['stock']) && $product['stock'] <= 0)
+                        <div class="absolute inset-0 bg-black/70 flex items-center justify-center z-20">
+                            <div class="text-center">
+                                <div class="bg-red-600 text-white px-6 py-3 rounded-lg font-bold text-lg shadow-lg mb-2">
+                                    <i class="fas fa-times-circle mr-2"></i>OUT OF STOCK
+                                </div>
+                                <p class="text-white text-sm">This item is currently unavailable</p>
+                            </div>
+                        </div>
+                        @endif
+
+                        <!-- Low Stock Badge -->
+                        @if(isset($product['stock']) && $product['stock'] > 0 && $product['stock'] <= 5)
+                        <div class="absolute top-4 left-4 z-10">
+                            <span class="bg-orange-500 text-white px-3 py-1 text-xs font-bold rounded-full shadow-lg animate-pulse">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>Only {{ $product['stock'] }} left
+                            </span>
+                        </div>
+                        @endif
                         
                         <!-- Floating Price Badge -->
                         <div class="absolute top-4 left-4">
@@ -113,16 +134,46 @@
                                 <div class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                                     {{ $product['price'] }} ৳
                                 </div>
+                                <!-- Stock Status -->
+                                @if(isset($product['stock']) && $product['stock'] > 0)
+                                    <div class="bg-green-50 px-2 py-1 rounded-full inline-block">
+                                        <span class="text-xs text-green-600 font-semibold">
+                                            <i class="fas fa-check-circle mr-1"></i>
+                                            Stock: {{ $product['stock'] }}
+                                        </span>
+                                    </div>
+                                @else
+                                    <div class="bg-red-50 px-2 py-1 rounded-full inline-block">
+                                        <span class="text-xs text-red-600 font-bold">
+                                            <i class="fas fa-times-circle mr-1"></i>
+                                            Out of Stock
+                                        </span>
+                                    </div>
+                                @endif
                             </div>
                             
                             <!-- Enhanced Add to Cart Form -->
-                            <form action="{{ route('cart.add', $product['id']) }}" method="POST" class="inline-block">
-                                @csrf
-                                <button type="submit" class="btn-modern bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 px-6 py-3 text-sm font-bold shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center space-x-2">
+                            @if(isset($product['stock']) && $product['stock'] > 0)
+                                <button 
+                                    class="add-to-cart-btn btn-modern bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 px-6 py-3 text-sm font-bold shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center space-x-2"
+                                    data-product-id="{{ $product['id'] }}"
+                                    data-product-name="{{ $product['name'] }}"
+                                    data-product-price="{{ $product['price'] }}"
+                                    data-product-image="{{ $product['image'] ?? '' }}"
+                                    data-product-stock="{{ $product['stock'] }}"
+                                >
                                     <i class="fas fa-shopping-cart"></i>
                                     <span>Add to Cart</span>
                                 </button>
-                            </form>
+                            @else
+                                <button 
+                                    class="btn-modern bg-gray-400 text-white px-6 py-3 text-sm font-bold cursor-not-allowed flex items-center space-x-2"
+                                    disabled
+                                >
+                                    <i class="fas fa-ban"></i>
+                                    <span>Out of Stock</span>
+                                </button>
+                            @endif
                         </div>
                         
                         <!-- Product Rating -->

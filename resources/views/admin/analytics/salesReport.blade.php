@@ -3,6 +3,21 @@
 @section('title', 'Sales Reports & Analytics')
 
 @section('content')
+@php
+    // Get real data from your database
+    $totalRevenue = $orders->sum('total') ?? 0;
+    $totalOrders = $orders->count() ?? 0;
+    $averageOrderValue = $totalOrders > 0 ? $totalRevenue / $totalOrders : 0;
+    $completedOrders = $orders->where('status', 'completed')->count();
+    $conversionRate = $totalOrders > 0 ? ($completedOrders / $totalOrders) * 100 : 0;
+    
+    // Get order status counts
+    $pendingOrders = $orders->where('status', 'pending')->count();
+    $shippingOrders = $orders->whereIn('status', ['processing', 'out_for_delivery'])->count();
+    $completedOrdersCount = $orders->where('status', 'completed')->count();
+    $cancelledOrders = $orders->where('status', 'cancelled')->count();
+@endphp
+
 <div class="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-blue-50">
     <!-- Header Section with Custom Color -->
     <div class="bg-gradient-to-r from-[#1D293D] to-gray-900 shadow-2xl">
@@ -33,20 +48,20 @@
             <!-- Key Metrics Cards -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
                 <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/20">
-                    <div class="text-2xl font-bold text-green-300">$124,567</div>
+                    <div class="text-2xl font-bold text-green-300">TK {{ number_format($totalRevenue, 0) }}</div>
                     <div class="text-sm text-gray-300">Total Revenue</div>
                 </div>
                 <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/20">
-                    <div class="text-2xl font-bold text-blue-300">2,847</div>
+                    <div class="text-2xl font-bold text-blue-300">{{ number_format($totalOrders) }}</div>
                     <div class="text-sm text-gray-300">Total Orders</div>
                 </div>
                 <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/20">
-                    <div class="text-2xl font-bold text-purple-300">$43.75</div>
+                    <div class="text-2xl font-bold text-purple-300">TK {{ number_format($averageOrderValue, 0) }}</div>
                     <div class="text-sm text-gray-300">Average Order Value</div>
                 </div>
                 <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/20">
-                    <div class="text-2xl font-bold text-orange-300">3.24%</div>
-                    <div class="text-sm text-gray-300">Conversion Rate</div>
+                    <div class="text-2xl font-bold text-orange-300">{{ number_format($conversionRate, 1) }}%</div>
+                    <div class="text-sm text-gray-300">Completion Rate</div>
                 </div>
             </div>
         </div>
@@ -88,18 +103,14 @@
                     <div class="flex items-center justify-between">
                         <h3 class="text-lg font-semibold text-white">Revenue Trends</h3>
                         <div class="flex space-x-2">
-                            <button class="px-3 py-1 text-xs bg-white/20 text-white rounded-full backdrop-blur-sm border border-white/30">Daily</button>
-                            <button class="px-3 py-1 text-xs bg-white/10 text-gray-300 rounded-full backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:text-white transition-all">Weekly</button>
-                            <button class="px-3 py-1 text-xs bg-white/10 text-gray-300 rounded-full backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:text-white transition-all">Monthly</button>
+                            <button onclick="updateRevenueChart('daily')" class="chart-toggle px-3 py-1 text-xs bg-white/20 text-white rounded-full backdrop-blur-sm border border-white/30 active">Daily</button>
+                            <button onclick="updateRevenueChart('weekly')" class="chart-toggle px-3 py-1 text-xs bg-white/10 text-gray-300 rounded-full backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:text-white transition-all">Weekly</button>
+                            <button onclick="updateRevenueChart('monthly')" class="chart-toggle px-3 py-1 text-xs bg-white/10 text-gray-300 rounded-full backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:text-white transition-all">Monthly</button>
                         </div>
                     </div>
                 </div>
                 <div class="h-64 flex items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50 rounded-xl border border-gray-100">
-                    <div class="text-center text-gray-500">
-                        <i class="fas fa-chart-area text-4xl mb-2 text-[#1D293D]"></i>
-                        <p class="font-medium text-gray-700">Revenue Chart</p>
-                        <p class="text-xs text-gray-500">Chart.js integration would go here</p>
-                    </div>
+                    <canvas id="revenueChart" class="w-full h-full"></canvas>
                 </div>
             </div>
 
@@ -109,17 +120,13 @@
                     <div class="flex items-center justify-between">
                         <h3 class="text-lg font-semibold text-white">Order Volume</h3>
                         <div class="flex space-x-2">
-                            <button class="px-3 py-1 text-xs bg-white/20 text-white rounded-full backdrop-blur-sm border border-white/30">This Week</button>
-                            <button class="px-3 py-1 text-xs bg-white/10 text-gray-300 rounded-full backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:text-white transition-all">This Month</button>
+                            <button onclick="updateOrdersChart('week')" class="order-toggle px-3 py-1 text-xs bg-white/20 text-white rounded-full backdrop-blur-sm border border-white/30 active">This Week</button>
+                            <button onclick="updateOrdersChart('month')" class="order-toggle px-3 py-1 text-xs bg-white/10 text-gray-300 rounded-full backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:text-white transition-all">This Month</button>
                         </div>
                     </div>
                 </div>
                 <div class="h-64 flex items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50 rounded-xl border border-gray-100">
-                    <div class="text-center text-gray-500">
-                        <i class="fas fa-chart-bar text-4xl mb-2 text-[#1D293D]"></i>
-                        <p class="font-medium text-gray-700">Orders Chart</p>
-                        <p class="text-xs text-gray-500">Chart.js integration would go here</p>
-                    </div>
+                    <canvas id="ordersChart" class="w-full h-full"></canvas>
                 </div>
             </div>
         </div>
@@ -140,32 +147,54 @@
 
                 <div class="p-6 space-y-4">
                     @php
-                    $topProducts = [
-                        ['name' => 'Wireless Bluetooth Headphones', 'sold' => 342, 'revenue' => '$15,390', 'trend' => '+12%'],
-                        ['name' => 'Smart Watch Pro', 'sold' => 287, 'revenue' => '$28,700', 'trend' => '+8%'],
-                        ['name' => 'Gaming Mouse RGB', 'sold' => 234, 'revenue' => '$7,020', 'trend' => '+15%'],
-                        ['name' => 'Laptop Stand Adjustable', 'sold' => 198, 'revenue' => '$5,940', 'trend' => '+5%'],
-                        ['name' => 'Portable Charger 10000mAh', 'sold' => 167, 'revenue' => '$4,175', 'trend' => '+3%']
-                    ];
+                    // Get top selling products from your actual order items
+                    $topProducts = collect();
+                    if($orders->isNotEmpty()) {
+                        $productStats = [];
+                        foreach($orders as $order) {
+                            foreach($order->items as $item) {
+                                if($item->product) {
+                                    $productId = $item->product->id;
+                                    if(!isset($productStats[$productId])) {
+                                        $productStats[$productId] = [
+                                            'name' => $item->product->name,
+                                            'sold' => 0,
+                                            'revenue' => 0
+                                        ];
+                                    }
+                                    $productStats[$productId]['sold'] += $item->quantity;
+                                    $productStats[$productId]['revenue'] += $item->price * $item->quantity;
+                                }
+                            }
+                        }
+                        $topProducts = collect($productStats)->sortByDesc('sold')->take(5)->values();
+                    }
                     @endphp
 
-                    @foreach($topProducts as $index => $product)
-                    <div class="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl hover:from-blue-50 hover:to-indigo-50 transition-all duration-200 border border-gray-100">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 bg-gradient-to-r from-[#1D293D] to-gray-700 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-sm">
-                                {{ $index + 1 }}
+                    @if($topProducts->isNotEmpty())
+                        @foreach($topProducts as $index => $product)
+                        <div class="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl hover:from-blue-50 hover:to-indigo-50 transition-all duration-200 border border-gray-100">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-gradient-to-r from-[#1D293D] to-gray-700 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-sm">
+                                    {{ $index + 1 }}
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900 text-sm">{{ Str::limit($product['name'], 25) }}</p>
+                                    <p class="text-xs text-gray-500">{{ $product['sold'] }} units sold</p>
+                                </div>
                             </div>
-                            <div>
-                                <p class="font-medium text-gray-900 text-sm">{{ Str::limit($product['name'], 25) }}</p>
-                                <p class="text-xs text-gray-500">{{ $product['sold'] }} units sold</p>
+                            <div class="text-right">
+                                <p class="font-semibold text-gray-900 text-sm">TK {{ number_format($product['revenue'], 0) }}</p>
+                                <p class="text-xs text-green-600">Top Seller</p>
                             </div>
                         </div>
-                        <div class="text-right">
-                            <p class="font-semibold text-gray-900 text-sm">{{ $product['revenue'] }}</p>
-                            <p class="text-xs text-green-600">{{ $product['trend'] }}</p>
+                        @endforeach
+                    @else
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-chart-bar text-4xl mb-2"></i>
+                            <p>No product data available yet</p>
                         </div>
-                    </div>
-                    @endforeach
+                    @endif
                 </div>
             </div>
 
@@ -183,48 +212,58 @@
 
                 <div class="p-6">
                     <!-- New vs Returning Customers -->
+                    @php
+                        $totalCustomers = $orders->pluck('user_id')->filter()->unique()->count() + $orders->whereNull('user_id')->count();
+                        $registeredCustomers = $orders->pluck('user_id')->filter()->unique()->count();
+                        $guestCustomers = $orders->whereNull('user_id')->count();
+                        $registeredPercentage = $totalCustomers > 0 ? ($registeredCustomers / $totalCustomers) * 100 : 0;
+                        $guestPercentage = $totalCustomers > 0 ? ($guestCustomers / $totalCustomers) * 100 : 0;
+                    @endphp
+
                     <div class="mb-6">
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm font-medium text-gray-700">New Customers</span>
-                            <span class="text-sm font-semibold text-gray-900">68%</span>
+                            <span class="text-sm font-medium text-gray-700">Registered Customers</span>
+                            <span class="text-sm font-semibold text-gray-900">{{ number_format($registeredPercentage, 1) }}%</span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full shadow-sm" style="width: 68%"></div>
+                            <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full shadow-sm" style="width: {{ $registeredPercentage }}%"></div>
                         </div>
                     </div>
 
                     <div class="mb-6">
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm font-medium text-gray-700">Returning Customers</span>
-                            <span class="text-sm font-semibold text-gray-900">32%</span>
+                            <span class="text-sm font-medium text-gray-700">Guest Customers</span>
+                            <span class="text-sm font-semibold text-gray-900">{{ number_format($guestPercentage, 1) }}%</span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full shadow-sm" style="width: 32%"></div>
+                            <div class="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full shadow-sm" style="width: {{ $guestPercentage }}%"></div>
                         </div>
                     </div>
 
-                    <!-- Top Customer Locations -->
-                    <h4 class="font-medium text-gray-800 mb-4">Top Customer Locations</h4>
+                    <!-- Order Status Distribution -->
+                    <h4 class="font-medium text-gray-800 mb-4">Order Status Distribution</h4>
                     <div class="space-y-3">
                         @php
-                        $locations = [
-                            ['country' => 'United States', 'orders' => 1247, 'percentage' => 45],
-                            ['country' => 'Canada', 'orders' => 689, 'percentage' => 25],
-                            ['country' => 'United Kingdom', 'orders' => 423, 'percentage' => 15],
-                            ['country' => 'Australia', 'orders' => 278, 'percentage' => 10],
-                            ['country' => 'Germany', 'orders' => 134, 'percentage' => 5]
+                        $statusData = [
+                            ['status' => 'Pending', 'count' => $pendingOrders, 'color' => 'from-orange-500 to-orange-600'],
+                            ['status' => 'Processing/Shipping', 'count' => $shippingOrders, 'color' => 'from-blue-500 to-blue-600'],
+                            ['status' => 'Completed', 'count' => $completedOrdersCount, 'color' => 'from-green-500 to-green-600'],
+                            ['status' => 'Cancelled', 'count' => $cancelledOrders, 'color' => 'from-red-500 to-red-600']
                         ];
                         @endphp
 
-                        @foreach($locations as $location)
+                        @foreach($statusData as $status)
+                        @php
+                            $percentage = $totalOrders > 0 ? ($status['count'] / $totalOrders) * 100 : 0;
+                        @endphp
                         <div class="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 transition-colors">
                             <div class="flex items-center space-x-2">
-                                <div class="w-4 h-4 bg-gradient-to-r from-[#1D293D] to-gray-700 rounded-full shadow-sm"></div>
-                                <span class="text-sm text-gray-700">{{ $location['country'] }}</span>
+                                <div class="w-4 h-4 bg-gradient-to-r {{ $status['color'] }} rounded-full shadow-sm"></div>
+                                <span class="text-sm text-gray-700">{{ $status['status'] }}</span>
                             </div>
                             <div class="flex items-center space-x-2">
-                                <span class="text-sm font-medium text-gray-900">{{ $location['orders'] }}</span>
-                                <span class="text-xs text-gray-500">({{ $location['percentage'] }}%)</span>
+                                <span class="text-sm font-medium text-gray-900">{{ $status['count'] }}</span>
+                                <span class="text-xs text-gray-500">({{ number_format($percentage, 1) }}%)</span>
                             </div>
                         </div>
                         @endforeach
@@ -288,106 +327,275 @@
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         @php
-                        $recentOrders = [
-                            ['id' => '#ORD-2024-001', 'customer' => 'Sarah Johnson', 'products' => 3, 'amount' => 249.99, 'status' => 'Completed', 'date' => '2024-12-15'],
-                            ['id' => '#ORD-2024-002', 'customer' => 'Mike Chen', 'products' => 1, 'amount' => 399.99, 'status' => 'Processing', 'date' => '2024-12-15'],
-                            ['id' => '#ORD-2024-003', 'customer' => 'Emily Rodriguez', 'products' => 2, 'amount' => 179.50, 'status' => 'Shipped', 'date' => '2024-12-14'],
-                            ['id' => '#ORD-2024-004', 'customer' => 'David Wilson', 'products' => 4, 'amount' => 567.25, 'status' => 'Completed', 'date' => '2024-12-14'],
-                            ['id' => '#ORD-2024-005', 'customer' => 'Lisa Parker', 'products' => 1, 'amount' => 89.99, 'status' => 'Pending', 'date' => '2024-12-13']
-                        ];
+                        // Get recent high-value orders from your actual data
+                        $recentHighValueOrders = $orders->sortByDesc('total')->take(5);
                         @endphp
 
-                        @foreach($recentOrders as $order)
-                        <tr class="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200 group">
-                            <!-- Order ID -->
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                <div class="w-20 h-6 bg-gradient-to-r from-[#1D293D] to-gray-700 rounded flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-200">
-                                    <span class="text-white font-bold text-xs">{{ Str::limit($order['id'], 12) }}</span>
-                                </div>
-                            </td>
-
-                            <!-- Customer -->
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                <div class="flex items-center space-x-2">
-                                    <div class="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
-                                        <i class="fas fa-user text-white text-xs"></i>
+                        @if($recentHighValueOrders->isNotEmpty())
+                            @foreach($recentHighValueOrders as $order)
+                            <tr class="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200 group">
+                                <!-- Order ID -->
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <div class="w-20 h-6 bg-gradient-to-r from-[#1D293D] to-gray-700 rounded flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-200">
+                                        <span class="text-white font-bold text-xs">#{{ $order->id }}</span>
                                     </div>
-                                    <div class="text-sm font-medium text-gray-900">{{ $order['customer'] }}</div>
-                                </div>
-                            </td>
+                                </td>
 
-                            <!-- Products -->
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">{{ $order['products'] }} items</div>
-                            </td>
+                                <!-- Customer -->
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
+                                            <i class="fas fa-user text-white text-xs"></i>
+                                        </div>
+                                        <div class="text-sm font-medium text-gray-900">{{ Str::limit($order->name, 15) }}</div>
+                                    </div>
+                                </td>
 
-                            <!-- Amount -->
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                <div class="text-sm font-semibold text-green-600">${{ number_format($order['amount'], 2) }}</div>
-                            </td>
+                                <!-- Products -->
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">{{ $order->items->count() }} items</div>
+                                </td>
 
-                            <!-- Status -->
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                @php
-                                    $statusClasses = [
-                                        'Completed' => 'bg-green-100 text-green-800 border-green-200',
-                                        'Processing' => 'bg-yellow-100 text-yellow-800 border-yellow-200',
-                                        'Shipped' => 'bg-blue-100 text-blue-800 border-blue-200',
-                                        'Pending' => 'bg-orange-100 text-orange-800 border-orange-200'
-                                    ];
-                                @endphp
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border {{ $statusClasses[$order['status']] }}">
-                                    {{ $order['status'] }}
-                                </span>
-                            </td>
+                                <!-- Amount -->
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <div class="text-sm font-semibold text-green-600">TK {{ number_format($order->total, 0) }}</div>
+                                </td>
 
-                            <!-- Date -->
-                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                                {{ \Carbon\Carbon::parse($order['date'])->format('M d, Y') }}
-                            </td>
-                        </tr>
-                        @endforeach
+                                <!-- Status -->
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    @php
+                                        $statusClasses = [
+                                            'completed' => 'bg-green-100 text-green-800 border-green-200',
+                                            'processing' => 'bg-yellow-100 text-yellow-800 border-yellow-200',
+                                            'out_for_delivery' => 'bg-blue-100 text-blue-800 border-blue-200',
+                                            'pending' => 'bg-orange-100 text-orange-800 border-orange-200',
+                                            'cancelled' => 'bg-red-100 text-red-800 border-red-200'
+                                        ];
+                                        $statusClass = $statusClasses[$order->status] ?? 'bg-gray-100 text-gray-800 border-gray-200';
+                                    @endphp
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border {{ $statusClass }}">
+                                        {{ ucfirst(str_replace('_', ' ', $order->status)) }}
+                                    </span>
+                                </td>
+
+                                <!-- Date -->
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                                    {{ $order->created_at->format('M d, Y') }}
+                                </td>
+                            </tr>
+                            @endforeach
+                        @else
+                            <tr>
+                                <td colspan="6" class="px-4 py-8 text-center text-gray-500">
+                                    <i class="fas fa-inbox text-4xl mb-2"></i>
+                                    <p>No orders available yet</p>
+                                </td>
+                            </tr>
+                        @endif
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- Performance Summary -->
-        <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20">
-            <div class="bg-gradient-to-r from-[#1D293D] to-gray-800 px-6 py-4 rounded-t-2xl">
-                <h3 class="text-lg font-semibold text-white">Performance Summary</h3>
-            </div>
-            <div class="p-6">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <!-- This Week vs Last Week -->
-                    <div class="text-center p-4 bg-gradient-to-br from-gray-50 to-blue-50 rounded-xl border border-gray-100">
-                        <h4 class="text-sm font-medium text-gray-600 mb-2">This Week vs Last Week</h4>
-                        <p class="text-2xl font-bold text-green-600">+15.3%</p>
-                        <p class="text-xs text-gray-500 mt-1">Revenue increased</p>
-                    </div>
-
-                    <!-- This Month vs Last Month -->
-                    <div class="text-center p-4 bg-gradient-to-br from-gray-50 to-blue-50 rounded-xl border border-gray-100">
-                        <h4 class="text-sm font-medium text-gray-600 mb-2">This Month vs Last Month</h4>
-                        <p class="text-2xl font-bold text-blue-600">+8.7%</p>
-                        <p class="text-xs text-gray-500 mt-1">Orders increased</p>
-                    </div>
-
-                    <!-- Best Performing Day -->
-                    <div class="text-center p-4 bg-gradient-to-br from-gray-50 to-blue-50 rounded-xl border border-gray-100">
-                        <h4 class="text-sm font-medium text-gray-600 mb-2">Best Performing Day</h4>
-                        <p class="text-lg font-bold text-purple-600">Saturday</p>
-                        <p class="text-xs text-gray-500 mt-1">$18,432 revenue</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        
     </div>
 </div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <!-- JavaScript for Interactive Features -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Prepare chart data from PHP
+        @php
+            // Prepare revenue data by month for the last 6 months
+            $revenueData = [];
+            $orderData = [];
+            $labels = [];
+            
+            for($i = 5; $i >= 0; $i--) {
+                $date = now()->subMonths($i);
+                $monthName = $date->format('M Y');
+                $labels[] = $monthName;
+                
+                $monthlyRevenue = $orders->filter(function($order) use ($date) {
+                    return $order->created_at->format('Y-m') === $date->format('Y-m');
+                })->sum('total');
+                
+                $monthlyOrders = $orders->filter(function($order) use ($date) {
+                    return $order->created_at->format('Y-m') === $date->format('Y-m');
+                })->count();
+                
+                $revenueData[] = $monthlyRevenue;
+                $orderData[] = $monthlyOrders;
+            }
+        @endphp
+
+        const chartData = {
+            labels: {!! json_encode($labels) !!},
+            revenueData: {!! json_encode($revenueData) !!},
+            orderData: {!! json_encode($orderData) !!}
+        };
+
+        // Revenue Chart
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        const revenueChart = new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: chartData.labels,
+                datasets: [{
+                    label: 'Revenue (TK)',
+                    data: chartData.revenueData,
+                    borderColor: '#1D293D',
+                    backgroundColor: 'rgba(29, 41, 61, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#1D293D',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'TK ' + value.toLocaleString();
+                            },
+                            color: '#6B7280',
+                            font: {
+                                size: 11
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0,0,0,0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#6B7280',
+                            font: {
+                                size: 11
+                            }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                elements: {
+                    point: {
+                        hoverBackgroundColor: '#ec4642'
+                    }
+                }
+            }
+        });
+
+        // Orders Chart
+        const ordersCtx = document.getElementById('ordersChart').getContext('2d');
+        const ordersChart = new Chart(ordersCtx, {
+            type: 'bar',
+            data: {
+                labels: chartData.labels,
+                datasets: [{
+                    label: 'Orders Count',
+                    data: chartData.orderData,
+                    backgroundColor: [
+                        'rgba(29, 41, 61, 0.8)',
+                        'rgba(59, 130, 246, 0.8)',
+                        'rgba(16, 185, 129, 0.8)',
+                        'rgba(245, 158, 11, 0.8)',
+                        'rgba(236, 70, 66, 0.8)',
+                        'rgba(139, 92, 246, 0.8)'
+                    ],
+                    borderColor: [
+                        '#1D293D',
+                        '#3B82F6',
+                        '#10B981',
+                        '#F59E0B',
+                        '#EC4642',
+                        '#8B5CF6'
+                    ],
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1,
+                            color: '#6B7280',
+                            font: {
+                                size: 11
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0,0,0,0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#6B7280',
+                            font: {
+                                size: 11
+                            }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                }
+            }
+        });
+
         // Date range selector
         const dateRangeSelect = document.getElementById('dateRange');
         const customDateRange = document.getElementById('customDateRange');
@@ -435,6 +643,35 @@
             });
         });
     });
+
+    // Toggle functions for chart periods
+    function updateChart(period) {
+        // Update toggle buttons for revenue chart
+        document.querySelectorAll('.toggle').forEach(btn => {
+            btn.classList.remove('active', 'bg-white/20', 'text-white');
+            btn.classList.add('bg-white/10', 'text-gray-300');
+        });
+        event.target.classList.add('active', 'bg-white/20', 'text-white');
+        event.target.classList.remove('bg-white/10', 'text-gray-300');
+        
+        // Here you could implement period-specific data fetching via AJAX
+        showNotification(`Revenue chart updated to show ${period} data`, 'info');
+        console.log('Updating revenue chart for period:', period);
+    }
+
+    function updateOrdersChart(period) {
+        // Update toggle buttons for orders chart
+        document.querySelectorAll('.order-toggle').forEach(btn => {
+            btn.classList.remove('active', 'bg-white/20', 'text-white');
+            btn.classList.add('bg-white/10', 'text-gray-300');
+        });
+        event.target.classList.add('active', 'bg-white/20', 'text-white');
+        event.target.classList.remove('bg-white/10', 'text-gray-300');
+        
+        // Here you could implement period-specific data fetching via AJAX
+        showNotification(`Order chart updated to show ${period} data`, 'info');
+        console.log('Updating orders chart for period:', period);
+    }
 
     // Show notification function
     function showNotification(message, type = 'info') {

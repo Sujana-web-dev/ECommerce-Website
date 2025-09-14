@@ -13,10 +13,10 @@
             </div>
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-2xl font-semibold text-white mb-1">
+                    <h1 class="text-xl font-semibold text-white mb-1">
                         📋 Order Details #{{ $order->id }}
                     </h1>
-                    <p class="text-gray-200">Placed on {{ $order->created_at->format('M d, Y h:i A') }}</p>
+                    <p class="text-gray-200 text-sm">Placed on {{ $order->created_at->format('M d, Y h:i A') }}</p>
                 </div>
                 <div class="flex space-x-3">
                     <a href="{{ route('orders') }}" 
@@ -41,27 +41,27 @@
             <!-- Customer Information -->
             <div class="bg-white shadow-xl rounded-xl p-6 border border-gray-100">
                 <div class="flex items-center mb-4">
-                    <div class="w-10 h-10 bg-gradient-to-r from-[#1D293D] to-gray-700 rounded-lg flex items-center justify-center mr-3">
-                        <span class="text-white text-lg">👤</span>
+                    <div class="w-8 h-8 bg-gradient-to-r from-[#1D293D] to-gray-700 rounded-lg flex items-center justify-center mr-3">
+                        <span class="text-white text-sm">👤</span>
                     </div>
-                    <h3 class="text-lg font-bold text-[#1D293D]">Customer Information</h3>
+                    <h3 class="text-base font-bold text-[#1D293D]">Customer Information</h3>
                 </div>
                 <div class="space-y-4">
                     <div class="border-l-4 border-[#ec4642] pl-4">
                         <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Full Name</label>
-                        <p class="font-semibold text-gray-800 text-lg">{{ $order->name }}</p>
+                        <p class="font-semibold text-gray-800 text-sm">{{ $order->name }}</p>
                     </div>
                     <div class="border-l-4 border-blue-500 pl-4">
                         <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Email Address</label>
-                        <p class="font-semibold text-gray-800">{{ $order->email }}</p>
+                        <p class="font-semibold text-gray-800 text-sm">{{ $order->email }}</p>
                     </div>
                     <div class="border-l-4 border-green-500 pl-4">
                         <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Phone Number</label>
-                        <p class="font-semibold text-gray-800">{{ $order->phone }}</p>
+                        <p class="font-semibold text-gray-800 text-sm">{{ $order->phone }}</p>
                     </div>
                     <div class="border-l-4 border-purple-500 pl-4">
                         <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">User Account</label>
-                        <p class="font-semibold text-gray-800">{{ $order->user->name ?? 'Guest User' }}</p>
+                        <p class="font-semibold text-gray-800 text-sm">{{ $order->user->name ?? 'Guest User' }}</p>
                     </div>
                 </div>
             </div>
@@ -69,19 +69,19 @@
             <!-- Delivery Information -->
             <div class="bg-white shadow-xl rounded-xl p-6 border border-gray-100">
                 <div class="flex items-center mb-4">
-                    <div class="w-10 h-10 bg-gradient-to-r from-[#1D293D] to-gray-700 rounded-lg flex items-center justify-center mr-3">
-                        <span class="text-white text-lg">🚚</span>
+                    <div class="w-8 h-8 bg-gradient-to-r from-[#1D293D] to-gray-700 rounded-lg flex items-center justify-center mr-3">
+                        <span class="text-white text-sm">🚚</span>
                     </div>
-                    <h3 class="text-lg font-bold text-[#1D293D]">Delivery Information</h3>
+                    <h3 class="text-base font-bold text-[#1D293D]">Delivery Information</h3>
                 </div>
                 <div class="space-y-4">
                     <div class="border-l-4 border-[#ec4642] pl-4">
                         <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Delivery Address</label>
-                        <p class="font-semibold text-gray-800">{{ $order->address }}</p>
+                        <p class="font-semibold text-gray-800 text-sm">{{ $order->address }}</p>
                     </div>
                     <div class="border-l-4 border-blue-500 pl-4">
                         <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Delivery Option</label>
-                        <p class="font-semibold text-gray-800 capitalize">{{ $order->delivery_option }}</p>
+                        <p class="font-semibold text-gray-800 capitalize text-sm">{{ $order->delivery_option }}</p>
                     </div>
                     <div class="border-l-4 border-green-500 pl-4">
                         <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Order Status</label>
@@ -104,28 +104,28 @@
             <!-- Order Summary -->
             <div class="bg-white shadow-xl rounded-xl p-6 border border-gray-100">
                 <div class="flex items-center mb-4">
-                    <div class="w-10 h-10 bg-gradient-to-r from-[#1D293D] to-gray-700 rounded-lg flex items-center justify-center mr-3">
-                        <span class="text-white text-lg">📊</span>
+                    <div class="w-8 h-8 bg-gradient-to-r from-[#1D293D] to-gray-700 rounded-lg flex items-center justify-center mr-3">
+                        <span class="text-white text-sm">📊</span>
                     </div>
-                    <h3 class="text-lg font-bold text-[#1D293D]">Order Summary</h3>
+                    <h3 class="text-base font-bold text-[#1D293D]">Order Summary</h3>
                 </div>
                 <div class="space-y-4">
                     <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                        <span class="text-gray-600 font-medium">Total Items</span>
-                        <span class="font-bold text-[#1D293D] text-lg">{{ $order->items->sum('quantity') }} items</span>
+                        <span class="text-gray-600 font-medium text-sm">Total Items</span>
+                        <span class="font-bold text-[#1D293D] text-sm">{{ $order->items->sum('quantity') }} items</span>
                     </div>
                     <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                        <span class="text-gray-600 font-medium">Delivery Charge</span>
-                        <span class="font-bold text-green-600">Free</span>
+                        <span class="text-gray-600 font-medium text-sm">Delivery Charge</span>
+                        <span class="font-bold text-green-600 text-sm">Free</span>
                     </div>
                     <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                        <span class="text-gray-600 font-medium">Order Date</span>
-                        <span class="font-semibold text-gray-800">{{ $order->created_at->format('M d, Y') }}</span>
+                        <span class="text-gray-600 font-medium text-sm">Order Date</span>
+                        <span class="font-semibold text-gray-800 text-sm">{{ $order->created_at->format('M d, Y') }}</span>
                     </div>
                     <div class="bg-gradient-to-r from-[#1D293D] to-gray-700 rounded-xl p-4 mt-4">
                         <div class="flex justify-between items-center">
-                            <span class="text-lg font-bold text-white">Grand Total</span>
-                            <span class="text-2xl font-bold text-[#ec4642] bg-white px-4 py-1 rounded-lg">TK: {{ number_format($order->total, 0) }}</span>
+                            <span class="text-base font-bold text-white">Grand Total</span>
+                            <span class="text-lg font-bold text-[#ec4642] bg-white px-4 py-1 rounded-lg">TK: {{ number_format($order->total, 0) }}</span>
                         </div>
                     </div>
                 </div>
@@ -135,29 +135,29 @@
         <!-- Order Items Table -->
         <div class="bg-white shadow-xl rounded-xl p-6 mt-6 border border-gray-100">
             <div class="flex items-center mb-6">
-                <div class="w-10 h-10 bg-gradient-to-r from-[#1D293D] to-gray-700 rounded-lg flex items-center justify-center mr-3">
-                    <span class="text-white text-lg">📦</span>
+                <div class="w-8 h-8 bg-gradient-to-r from-[#1D293D] to-gray-700 rounded-lg flex items-center justify-center mr-3">
+                    <span class="text-white text-sm">📦</span>
                 </div>
-                <h3 class="text-lg font-bold text-[#1D293D]">Order Items Details</h3>
+                <h3 class="text-base font-bold text-[#1D293D]">Order Items Details</h3>
             </div>
             
             <div class="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
                 <table class="table-fixed w-full border-collapse min-w-full">
                     <thead>
                         <tr class="bg-gradient-to-r from-[#1D293D] to-gray-700">
-                            <th class="w-2/5 text-left text-white font-semibold px-6 py-4 border border-gray-600">Product Details</th>
-                            <th class="w-1/6 text-center text-white font-semibold px-6 py-4 border border-gray-600">Quantity</th>
-                            <th class="w-1/6 text-center text-white font-semibold px-6 py-4 border border-gray-600">Unit Price</th>
-                            <th class="w-1/6 text-center text-white font-semibold px-6 py-4 border border-gray-600">Total Price</th>
+                            <th class="w-2/5 text-left text-white font-semibold px-4 py-3 border border-gray-600 text-sm">Product Details</th>
+                            <th class="w-1/6 text-center text-white font-semibold px-4 py-3 border border-gray-600 text-sm">Quantity</th>
+                            <th class="w-1/6 text-center text-white font-semibold px-4 py-3 border border-gray-600 text-sm">Unit Price</th>
+                            <th class="w-1/6 text-center text-white font-semibold px-4 py-3 border border-gray-600 text-sm">Total Price</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($order->items as $item)
                         <tr class="hover:bg-gray-50 border-b border-gray-200 transition-all duration-200">
-                            <td class="px-6 py-4 border-r border-gray-200">
+                            <td class="px-4 py-3 border-r border-gray-200">
                                 <div class="flex items-center gap-4">
                                     @if($item->product && $item->product->image)
-                                    <img src="{{ asset('images/products/' . $item->product->image) }}" 
+                                    <img src="{{ asset('storage/' . $item->product->image) }}" 
                                          alt="{{ $item->product->name }}" 
                                          class="w-16 h-16 object-cover rounded-lg border-2 border-gray-200 shadow-sm">
                                     @else
@@ -166,26 +166,26 @@
                                     </div>
                                     @endif
                                     <div>
-                                        <div class="font-semibold text-gray-800 text-lg" title="{{ $item->product->name ?? 'Product Deleted' }}">
+                                        <div class="font-semibold text-gray-800 text-sm" title="{{ $item->product->name ?? 'Product Deleted' }}">
                                             {{ Str::limit($item->product->name ?? 'Product Deleted', 30) }}
                                         </div>
                                         @if($item->product)
                                         <div class="text-sm text-gray-500 mt-1">Product ID: #{{ $item->product->id }}</div>
-                                        <div class="text-xs text-[#ec4642] font-medium">{{ $item->product->productCategory->name ?? 'No Category' }}</div>
+                                        <div class="text-xs text-[#ec4642] font-medium">{{ $item->product->category->name ?? 'No Category' }}</div>
                                         @endif
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 text-center border-r border-gray-200">
-                                <span class="inline-block bg-[#ec4642] text-white px-4 py-2 rounded-full font-bold text-lg">
+                            <td class="px-4 py-3 text-center border-r border-gray-200">
+                                <span class="inline-block bg-[#ec4642] text-white px-4 py-2 rounded-full font-bold text-sm">
                                     {{ $item->quantity }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 text-center border-r border-gray-200">
-                                <span class="font-semibold text-gray-800 text-lg">TK: {{ number_format($item->price, 0) }}</span>
+                            <td class="px-4 py-3 text-center border-r border-gray-200">
+                                <span class="font-semibold text-gray-800 text-sm">TK: {{ number_format($item->price, 0) }}</span>
                             </td>
-                            <td class="px-6 py-4 text-center">
-                                <span class="font-bold text-[#1D293D] text-xl">TK: {{ number_format($item->price * $item->quantity, 0) }}</span>
+                            <td class="px-4 py-3 text-center">
+                                <span class="font-bold text-[#1D293D] text-sm">TK: {{ number_format($item->price * $item->quantity, 0) }}</span>
                             </td>
                         </tr>
                         @endforeach
@@ -194,11 +194,11 @@
                     <!-- Table Footer with Total -->
                     <tfoot>
                         <tr class="bg-gradient-to-r from-[#1D293D] to-gray-700">
-                            <td colspan="3" class="px-6 py-4 text-right text-white font-bold text-lg border border-gray-600">
+                            <td colspan="3" class="px-4 py-3 text-right text-white font-bold text-sm border border-gray-600">
                                 Grand Total:
                             </td>
-                            <td class="px-6 py-4 text-center border border-gray-600">
-                                <span class="inline-block bg-[#ec4642] text-white px-6 py-2 rounded-lg font-bold text-xl">
+                            <td class="px-4 py-3 text-center border border-gray-600">
+                                <span class="inline-block bg-[#ec4642] text-white px-6 py-2 rounded-lg font-bold text-sm">
                                     TK: {{ number_format($order->total, 0) }}
                                 </span>
                             </td>
@@ -212,18 +212,18 @@
         <div class="mt-6 bg-white shadow-xl rounded-xl p-6 border border-gray-100">
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
-                    <div class="w-10 h-10 bg-gradient-to-r from-red-600 to-red-700 rounded-lg flex items-center justify-center mr-3">
-                        <span class="text-white text-lg">⚠️</span>
+                    <div class="w-8 h-8 bg-gradient-to-r from-red-600 to-red-700 rounded-lg flex items-center justify-center mr-3">
+                        <span class="text-white text-sm">⚠️</span>
                     </div>
                     <div>
-                        <h3 class="text-lg font-bold text-[#1D293D]">Danger Zone</h3>
-                        <p class="text-sm text-gray-600">Permanently delete this order and all associated data</p>
+                        <h3 class="text-base font-bold text-[#1D293D]">Danger Zone</h3>
+                        <p class="text-xs text-gray-600">Permanently delete this order and all associated data</p>
                     </div>
                 </div>
                 <form action="{{ route('orders.destroy', $order->id) }}" method="POST" onsubmit="return handleOrderDelete(event, '{{ $order->id }}')" class="inline">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-8 py-3 rounded-lg font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                    <button type="submit" class="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-6 py-2 rounded-lg font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-sm">
                         🗑️ Delete Order
                     </button>
                 </form>

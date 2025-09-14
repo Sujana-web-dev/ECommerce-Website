@@ -14,6 +14,13 @@ class CartItem extends Model
         'user_id',
         'product_id',
         'quantity',
+        'price',
+        'options',
+    ];
+
+    protected $casts = [
+        'options' => 'array',
+        'price' => 'decimal:2',
     ];
 
     // relations

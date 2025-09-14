@@ -46,8 +46,12 @@
                 <button
                     @click="open = !open"
                     class="flex items-center gap-2 p-1 hover:bg-gray-100 rounded-lg transition-colors">
-                    <div class="w-8 h-8 bg-[#1D293D] rounded-full flex items-center justify-center">
-                        <span class="text-white text-sm font-medium">{{ substr(Auth::user()->name, 0, 2) }}</span>
+                    <img src="{{ Auth::user()->profile_image_url }}" 
+                         alt="Profile Picture" 
+                         class="w-8 h-8 rounded-full profile-avatar object-cover border border-gray-200"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="w-8 h-8 bg-[#1D293D] rounded-full flex items-center justify-center" style="display: none;">
+                        <span class="text-white text-sm font-medium">{{ Auth::user()->avatar_initials }}</span>
                     </div>
                     <div class="text-left hidden sm:block">
                         <div class="text-sm font-medium text-gray-900">{{ Auth::user()->name }}</div>
@@ -64,7 +68,13 @@
                 <div x-show="open" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-1" @click.outside="open = false" x-cloak class="absolute right-0 top-full mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"> <!-- Profile Info -->
                     <div class="px-4 py-3 border-b border-gray-100">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-[#1D293D] rounded-full flex items-center justify-center"> <span class="text-white font-medium">{{ substr(Auth::user()->name, 0, 2) }}</span> </div>
+                            <img src="{{ Auth::user()->profile_image_url }}" 
+                                 alt="Profile Picture" 
+                                 class="w-10 h-10 rounded-full profile-avatar object-cover border border-gray-200"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="w-10 h-10 bg-[#1D293D] rounded-full flex items-center justify-center" style="display: none;">
+                                <span class="text-white font-medium">{{ Auth::user()->avatar_initials }}</span>
+                            </div>
                             <div>
                                 <div class="font-medium text-gray-900">{{ Auth::user()->name }}</div>
                                 <div class="text-sm text-gray-500">{{ Auth::user()->email }}</div>

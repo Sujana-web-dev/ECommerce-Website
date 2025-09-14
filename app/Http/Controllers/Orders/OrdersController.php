@@ -81,7 +81,7 @@ class OrdersController extends Controller
 
     public function show($id)
     {
-        $order = Order::with(['user','items.product'])->findOrFail($id);
+        $order = Order::with(['user','items.product.category'])->findOrFail($id);
         return view('admin.orders.show', compact('order'));
     }
 

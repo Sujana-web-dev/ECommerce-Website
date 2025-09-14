@@ -59,14 +59,150 @@
         </div>
         @endif
 
+        {{-- Stock Overview Widget --}}
+        @php
+            $totalProducts = \App\Models\Product::count();
+            $inStockProducts = \App\Models\Product::where('stock', '>', 0)->count();
+            $outOfStockProducts = \App\Models\Product::where('stock', '<=', 0)->count();
+            $lowStockProducts = \App\Models\Product::whereBetween('stock', [1, 10])->count();
+            $criticalStockProducts = \App\Models\Product::whereBetween('stock', [1, 5])->count();
+        @endphp
+
+        @if($outOfStockProducts > 0 || $criticalStockProducts > 0)
+        <div class="bg-gradient-to-r from-gray-50 to-slate-50 border border-gray-200 rounded-2xl shadow-lg overflow-hidden">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-semibold text-gray-800 flex items-center">
+                        <i class="fas fa-chart-pie text-blue-600 mr-3"></i>
+                        Stock Overview
+                    </h3>
+                    <div class="text-sm text-gray-600">
+                        Total Products: <span class="font-semibold">{{ $totalProducts }}</span>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- In Stock -->
+                    <div class="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-check-circle text-green-600"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-green-800">In Stock</p>
+                                    <p class="text-2xl font-bold text-green-700">{{ $inStockProducts }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Low Stock -->
+                    @if($lowStockProducts > 0)
+                    <div class="bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-200 rounded-xl p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-exclamation-triangle text-amber-600"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-amber-800">Low Stock</p>
+                                    <p class="text-2xl font-bold text-amber-700">{{ $lowStockProducts }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-2 text-xs text-amber-600">10 or fewer units</div>
+                    </div>
+                    @endif
+
+                    <!-- Critical Stock -->
+                    @if($criticalStockProducts > 0)
+                    <div class="bg-gradient-to-br from-orange-50 to-red-50 border border-orange-200 rounded-xl p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-exclamation-circle text-orange-600"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-orange-800">Critical</p>
+                                    <p class="text-2xl font-bold text-orange-700">{{ $criticalStockProducts }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-2 text-xs text-orange-600">5 or fewer units</div>
+                    </div>
+                    @endif
+
+                    <!-- Out of Stock -->
+                    @if($outOfStockProducts > 0)
+                    <div class="bg-gradient-to-br from-red-50 to-pink-50 border border-red-200 rounded-xl p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-ban text-red-600"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-red-800">Out of Stock</p>
+                                    <p class="text-2xl font-bold text-red-700">{{ $outOfStockProducts }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-2 text-xs text-red-600">Needs restocking</div>
+                    </div>
+                    @endif
+                </div>
+
+                @if($outOfStockProducts > 0)
+                <div class="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+                    <div class="flex items-start">
+                        <i class="fas fa-exclamation-triangle text-red-500 mr-3 mt-0.5"></i>
+                        <div>
+                            <h4 class="font-semibold text-red-800 mb-2">Attention Required!</h4>
+                            <p class="text-red-700 text-sm">
+                                You have {{ $outOfStockProducts }} product{{ $outOfStockProducts > 1 ? 's' : '' }} completely out of stock. 
+                                These products are not available for purchase and may be affecting your sales.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                @endif
+            </div>
+        </div>
+        @endif
+
         {{-- Enhanced Table Layout --}}
         <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden border border-white/20">
             {{-- Table Header --}}
             <div class="bg-gradient-to-r from-[#1D293D] to-gray-800 px-6 py-4">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-semibold text-white">Products List</h3>
                     <div class="text-sm text-gray-300">
                         <span>Showing {{ $products->count() }} of {{ $products->total() }} products</span>
+                    </div>
+                </div>
+                
+                <!-- Stock Filter Buttons -->
+                <div class="flex items-center space-x-3">
+                    <span class="text-gray-300 text-sm font-medium">Quick Filters:</span>
+                    <button onclick="showAllProducts()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium transition-colors duration-200">
+                        <i class="fas fa-list mr-1"></i>All Products
+                    </button>
+                    @if($outOfStockProducts > 0)
+                    <button onclick="filterByStock(0)" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-medium transition-colors duration-200">
+                        <i class="fas fa-ban mr-1"></i>Out of Stock ({{ $outOfStockProducts }})
+                    </button>
+                    @endif
+                    @if($criticalStockProducts > 0)
+                    <button onclick="filterByStock(1, 5)" class="px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-medium transition-colors duration-200">
+                        <i class="fas fa-exclamation-triangle mr-1"></i>Critical Stock ({{ $criticalStockProducts }})
+                    </button>
+                    @endif
+                    @if($lowStockProducts > 0)
+                    <button onclick="filterByStock(1, 10)" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-medium transition-colors duration-200">
+                        <i class="fas fa-exclamation-triangle mr-1"></i>Low Stock ({{ $lowStockProducts }})
+                    </button>
+                    @endif
+                </div>
                     </div>
                 </div>
             </div>
@@ -123,7 +259,7 @@
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         @foreach($products as $index => $product)
-                        <tr class="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200 group">
+                        <tr class="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200 group {{ $product->stock <= 0 ? 'bg-red-50/40 border-red-200' : '' }}">>
                             {{-- Product ID --}}
                             <td class="px-3 py-3 whitespace-nowrap">
                                 <div class="w-8 h-8 bg-gradient-to-r from-[#1D293D] to-gray-700 rounded-lg flex items-center justify-center shadow-md group-hover:scale-105 transition-transform duration-200">
@@ -199,9 +335,9 @@
                                         Low
                                     </span>
                                     @else
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800 border border-red-200 shadow-sm">
-                                        <div class="w-1.5 h-1.5 bg-red-500 rounded-full mr-1"></div>
-                                        Out
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-200 text-red-900 border-2 border-red-400 shadow-md animate-pulse">
+                                        <div class="w-2 h-2 bg-red-600 rounded-full mr-1"></div>
+                                        OUT OF STOCK
                                     </span>
                                     @endif
                                     <div class="flex items-center justify-center text-xs text-gray-600">
@@ -509,6 +645,55 @@
         }
         
         return false;
+    }
+
+    // Stock filtering functions
+    function showAllProducts() {
+        const rows = document.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            row.style.display = '';
+        });
+        updateFilterButtons('all');
+    }
+
+    function filterByStock(min, max = null) {
+        const rows = document.querySelectorAll('tbody tr');
+        
+        rows.forEach(row => {
+            const stockElement = row.querySelector('.font-medium');
+            if (stockElement) {
+                const stock = parseInt(stockElement.textContent.trim());
+                
+                if (min === 0) {
+                    // Show only out of stock
+                    row.style.display = stock === 0 ? '' : 'none';
+                } else if (max) {
+                    // Show range
+                    row.style.display = (stock >= min && stock <= max) ? '' : 'none';
+                } else {
+                    // Show greater than min
+                    row.style.display = stock >= min ? '' : 'none';
+                }
+            }
+        });
+        
+        updateFilterButtons(min === 0 ? 'out' : (max === 5 ? 'critical' : 'low'));
+    }
+
+    function updateFilterButtons(activeFilter) {
+        const buttons = document.querySelectorAll('button[onclick*="filter"], button[onclick*="showAll"]');
+        buttons.forEach(button => {
+            button.classList.remove('bg-blue-700', 'bg-red-700', 'bg-orange-700', 'bg-amber-700');
+            if (activeFilter === 'all' && button.onclick.toString().includes('showAll')) {
+                button.classList.add('bg-blue-700');
+            } else if (activeFilter === 'out' && button.onclick.toString().includes('filterByStock(0)')) {
+                button.classList.add('bg-red-700');
+            } else if (activeFilter === 'critical' && button.onclick.toString().includes('filterByStock(1, 5)')) {
+                button.classList.add('bg-orange-700');
+            } else if (activeFilter === 'low' && button.onclick.toString().includes('filterByStock(1, 10)')) {
+                button.classList.add('bg-amber-700');
+            }
+        });
     }
 </script>
 @endpush

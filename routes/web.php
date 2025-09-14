@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Product\ProductController;
 use App\Http\Controllers\ProductCategory\CategoryController;
 use App\Http\Controllers\Cart\CartController;
@@ -12,6 +13,8 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Cart\AdminCartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\InboxController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -41,6 +44,10 @@ Route::get('/register', function () {
 })->name('register');
 
 Route::post('/register', [RegisterController::class, 'register'])->name('register.custom');
+
+// Contact Routes
+Route::get('/contact', [\App\Http\Controllers\ContactController::class, 'showForm'])->name('contact.form');
+Route::post('/contact', [\App\Http\Controllers\ContactController::class, 'store'])->name('contact.store');
 
 // Dashboard for normal login
 Route::middleware(['auth'])->group(function () {
@@ -117,10 +124,12 @@ Route::get('/productCategory/delete/{id}', [CategoryController::class, 'delete']
 
 // Cart Routes
 Route::prefix('cart')->group(function () {
+    Route::get('/', [CartController::class, 'index'])->name('cart.index');
     Route::post('/add', [CartController::class, 'add'])->name('cart.add');
     Route::post('/update', [CartController::class, 'update'])->name('cart.update');
     Route::post('/remove', [CartController::class, 'remove'])->name('cart.remove');
-    Route::get('/', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/clear', [CartController::class, 'clear'])->name('cart.clear');
+    Route::get('/stock-status', [CartController::class, 'getStockStatus'])->name('cart.stock-status');
 });
 
 
@@ -159,7 +168,9 @@ Route::middleware(['auth'])->group(function () {
 // Analytics Routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/analytics/sales', function () {
-        return view('admin.analytics.salesReport');
+        // Fetch all orders with their items and products for analytics
+        $orders = \App\Models\Order::with(['user', 'items.product.category'])->orderBy('created_at', 'desc')->get();
+        return view('admin.analytics.salesReport', compact('orders'));
     })->name('analytics.sales');
 
     // Payment Methods
@@ -169,12 +180,19 @@ Route::middleware(['auth'])->group(function () {
     })->name('settings.payment-methods');
 
     // Admin Profile
-    Route::get('/profile', function () {
-        $pageTitle = "Admin Profile";
-        return view('admin.settings.profile', compact('pageTitle'));
-    })->name('settings.profile');
+    Route::get('/profile', [App\Http\Controllers\Admin\ProfileController::class, 'index'])->name('settings.profile');
+    Route::post('/profile/update', [App\Http\Controllers\Admin\ProfileController::class, 'updateProfile'])->name('settings.profile.update');
+    Route::post('/profile/password', [App\Http\Controllers\Admin\ProfileController::class, 'updatePassword'])->name('settings.profile.password');
+    Route::post('/profile/preferences', [App\Http\Controllers\Admin\ProfileController::class, 'updatePreferences'])->name('settings.profile.preferences');
 
     // Inbox & Messages
+    Route::get('/inbox', [InboxController::class, 'index'])->name('inbox.messages');
+    
+    // Update contact status
+    Route::patch('/inbox/{contact}/status', [InboxController::class, 'updateStatus'])->name('inbox.update-status');
+    
+    // Delete contact
+    Route::delete('/inbox/{contact}', [InboxController::class, 'destroy'])->name('inbox.delete');
     Route::get('/messages', function () {
         $pageTitle = "Message List";
         return view('admin.inbox.messageList', compact('pageTitle'));
@@ -190,6 +208,91 @@ Route::middleware('auth')->group(function () {
 
 
 Route::get('/product/{id}', [ProductController::class, 'view'])->name('product.view');
+
+// Debug route to check profile setup
+Route::get('/debug-profile', function () {
+    $user = auth()->user();
+    if (!$user) {
+        return response()->json(['error' => 'Not authenticated']);
+    }
+    
+    return response()->json([
+        'user_id' => $user->id,
+        'user_data' => $user->toArray(),
+        'table_columns' => \Illuminate\Support\Facades\Schema::getColumnListing('users'),
+        'routes' => [
+            'profile_update' => route('settings.profile.update'),
+            'profile_password' => route('settings.profile.password'),
+            'profile_preferences' => route('settings.profile.preferences'),
+        ]
+    ]);
+});
+
+// Temporary route to setup admin profile (REMOVE IN PRODUCTION)
+Route::get('/setup-admin-profile', function () {
+    try {
+        // Run the migration programmatically if it hasn't been run
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('users', 'first_name')) {
+            \Illuminate\Support\Facades\Schema::table('users', function ($table) {
+                $table->string('first_name')->nullable()->after('name');
+                $table->string('last_name')->nullable()->after('first_name');
+                $table->string('phone', 20)->nullable()->after('email');
+                $table->text('bio')->nullable()->after('phone');
+                $table->string('profile_image')->nullable()->after('bio');
+                $table->json('preferences')->nullable()->after('profile_image');
+            });
+        }
+
+        // Find or create admin user
+        $admin = \App\Models\User::firstOrCreate(
+            ['email' => 'admin@admin.com'],
+            [
+                'name' => 'Admin User',
+                'username' => 'admin',
+                'password' => bcrypt('Admin@123'),
+                'role' => 'admin',
+                'user_type' => 'admin'
+            ]
+        );
+
+        // Update admin with profile data
+        $admin->update([
+            'first_name' => 'Admin',
+            'last_name' => 'User',
+            'phone' => '+1 (555) 123-4567',
+            'bio' => 'System administrator with 5+ years of experience managing e-commerce platforms and ensuring optimal user experience. Passionate about technology and committed to delivering exceptional digital solutions.',
+            'preferences' => json_encode([
+                'email_notifications' => true,
+                'push_notifications' => true,
+                'marketing_updates' => false,
+                'theme' => 'light',
+                'language' => 'en',
+                'two_factor_enabled' => false,
+            ])
+        ]);
+
+        return response()->json([
+            'message' => 'Admin profile setup completed successfully!',
+            'admin' => [
+                'email' => $admin->email,
+                'name' => $admin->full_name,
+                'role' => $admin->role,
+                'profile_complete' => true
+            ],
+            'login_credentials' => [
+                'email' => 'admin@admin.com',
+                'password' => 'Admin@123'
+            ],
+            'next_step' => 'Login with the credentials above and visit /admin/profile to manage your profile.'
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Setup failed: ' . $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ], 500);
+    }
+});
 
 // Temporary route to create admin user (REMOVE IN PRODUCTION)
 Route::get('/create-admin', function () {
