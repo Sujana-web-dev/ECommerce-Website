@@ -130,9 +130,9 @@
                             <div class="mb-3">
                                 <div class="flex items-baseline justify-between">
                                     <div class="flex items-baseline space-x-3">
-                                        <span class=" text-xl font-black text-[#1D293D]">${{ number_format($product->amount ?? 0) }}</span>
+                                        <span class=" text-xl font-black text-[#1D293D]">TK{{ number_format($product->amount ?? 0) }}</span>
                                         @if($product->original_price)
-                                        <span class="text-gray-400 line-through text-lg">${{ number_format($product->original_price) }}</span>
+                                        <span class="text-gray-400 line-through text-lg">TK{{ number_format($product->original_price) }}</span>
                                         @endif
                                     </div>
                                     <div class="text-right">
@@ -218,28 +218,94 @@
     <div class="flex items-center justify-center min-h-screen py-4">
         <div class="bg-white rounded-3xl shadow-xl max-w-4xl w-full relative overflow-hidden max-h-[90vh] overflow-y-auto">
             <!-- Close Button -->
-            <button onclick="closeQuickView()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
+            <button onclick="closeQuickView()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl font-bold z-10">&times;</button>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
                 <!-- Product Image -->
                 <div class="flex justify-center items-center">
-                    <img id="modalMainImage" src="" alt="Product Image" class="w-full h-80 object-cover rounded-lg">
+                    <img id="modalMainImage" src="" alt="Product Image" class="rounded-2xl object-cover w-full h-[400px]">
                 </div>
 
                 <!-- Product Info -->
                 <div class="flex flex-col justify-between">
                     <div>
-                        <span id="modalCategory" class="inline-block px-3 py-1 bg-orange-100 text-orange-600 text-sm font-medium rounded-lg mb-2">Sports</span>
-                        <h2 id="modalTitle" class="text-2xl font-bold text-gray-900 mb-3">Product Title</h2>
+                        <!-- Category Badge -->
                         <div class="mb-4">
-                            <span id="modalPrice" class="text-3xl font-bold text-gray-900">$0.00</span>
-                            <span id="modalOriginalPrice" class="text-gray-500 line-through text-lg"></span>
+                            <span id="modalCategory" class="inline-block px-3 py-1 bg-[#1D293D] text-white text-xs font-semibold rounded-full uppercase tracking-wider">SPORTS</span>
                         </div>
-                        <p id="modalDescription" class="text-gray-600 leading-relaxed text-sm mb-4">Premium sports equipment for your active lifestyle.</p>
+
+                        <h2 id="modalTitle" class="text-3xl font-bold text-gray-900 mb-4">Product Title</h2>
+
+                        <!-- Rating Section -->
+                        <div id="modalRating" class="flex items-center mb-4">
+                            <i class="fas fa-star text-yellow-400"></i>
+                            <i class="fas fa-star text-yellow-400"></i>
+                            <i class="fas fa-star text-yellow-400"></i>
+                            <i class="fas fa-star text-yellow-400"></i>
+                            <i class="fas fa-star text-yellow-400"></i>
+                            <span class="text-gray-500 ml-2">(4.8)</span>
+                        </div>
+
+                        <!-- Price Section -->
+                        <div class="flex items-baseline space-x-3 mb-6">
+                            <span id="modalPrice" class="text-3xl font-bold text-[#1D293D]">TK 0</span>
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-semibold">In Stock</span>
+                        </div>
+
+                        <!-- Enhanced Description -->
+                        <div class="mb-6">
+                            <h4 class="font-semibold text-gray-900 mb-2">Description:</h4>
+                            <p id="modalDescription" class="text-gray-700 leading-relaxed">This is a premium sports product from our curated collection.</p>
+                        </div>
+
+                        <!-- Product Features -->
+                        <div class="mb-6">
+                            <h4 class="font-semibold text-gray-900 mb-2">Features:</h4>
+                            <ul class="text-gray-700 text-sm space-y-1">
+                                <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Professional Grade Quality</li>
+                                <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Fast Delivery</li>
+                                <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Money Back Guarantee</li>
+                                <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> 24/7 Customer Support</li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="flex space-x-4 mt-6">
-                        <button class="px-6 py-2 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-xl font-semibold shadow-md hover:from-orange-700 hover:to-red-700 transition-all">Add to Cart</button>
-                        <button class="px-6 py-2 bg-gray-200 text-gray-700 rounded-xl font-semibold shadow-md hover:bg-gray-300 transition-all">Wishlist</button>
+
+                    <!-- Quantity & Buttons -->
+                    <div class="space-y-4">
+                        <!-- Quantity Selector -->
+                        <div class="flex items-center justify-between bg-gray-50 rounded-xl p-4">
+                            <span class="font-semibold text-gray-800">Quantity:</span>
+                            <div class="flex items-center bg-white rounded-lg border-2 border-gray-200">
+                                <button onclick="decreaseQuantity()" class="px-4 py-2 hover:bg-gray-100 rounded-l-lg transition-colors font-bold text-gray-600">
+                                    <i class="fas fa-minus text-sm"></i>
+                                </button>
+                                <input type="number" id="quantity" value="1" min="1" max="10" class="w-16 text-center border-0 focus:ring-0 font-semibold text-gray-800" readonly>
+                                <button onclick="increaseQuantity()" class="px-4 py-2 hover:bg-gray-100 rounded-r-lg transition-colors font-bold text-gray-600">
+                                    <i class="fas fa-plus text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="space-y-3">
+                            <button onclick="addToCart(currentProductId)" class="w-full bg-gradient-to-r from-[#1D293D] to-[#243447] text-white py-3 rounded-xl font-bold text-lg hover:from-[#ec4642] hover:to-[#d63031] transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 duration-300">
+                                <i class="fas fa-shopping-cart mr-2"></i>Add to Cart
+                            </button>
+
+                            <button onclick="addToWishlist(currentProductId)" class="w-full border-2 border-gray-300 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all duration-300">
+                                <i class="far fa-heart mr-2"></i>Add to Wishlist
+                            </button>
+                        </div>
+
+                        <!-- Additional Info -->
+                        <div class="text-center pt-4 border-t border-gray-200">
+                            <p class="text-sm text-gray-500">
+                                <i class="fas fa-truck mr-1"></i>Free shipping on orders over TK 500
+                            </p>
+                            <p class="text-sm text-gray-500 mt-1">
+                                <i class="fas fa-shield-alt mr-1"></i>Secure payment & money-back guarantee
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -356,15 +422,16 @@
 
         // Extract product details from card
         const title = productCard.querySelector('h3')?.textContent || 'Product Title';
-        const price = productCard.querySelector('.text-2xl')?.textContent || '$0.00';
+        const priceElement = productCard.querySelector('.text-xl.font-black');
+        const price = priceElement ? priceElement.textContent.trim() : 'TK 0';
         const image = productCard.querySelector('img');
         const category = productCard.getAttribute('data-category') || 'Sports';
 
         // Update modal content
         document.getElementById('modalTitle').textContent = title;
         document.getElementById('modalPrice').textContent = price;
-        document.getElementById('modalCategory').textContent = category;
-        document.getElementById('modalDescription').textContent = `Premium ${category.toLowerCase()} equipment designed for peak performance.`;
+        document.getElementById('modalCategory').textContent = category.toUpperCase();
+        document.getElementById('modalDescription').textContent = `Premium ${category.toLowerCase()} equipment "${title}" designed for peak performance and athletic excellence.`;
 
         if (image) {
             const modalImage = document.getElementById('modalMainImage');
@@ -383,103 +450,85 @@
         const modal = document.getElementById('quickViewModal');
         modal.style.display = 'none';
         modal.classList.add('hidden');
-        <!-- Quick View Modal -->
-        <div id="quickViewModal" class="fixed inset-0 bg-black/50 hidden z-50 p-4" style="display: none;">
-            <div class="flex items-center justify-center min-h-screen py-4">
-                <div class="bg-white rounded-3xl shadow-xl max-w-4xl w-full relative overflow-hidden max-h-[90vh] overflow-y-auto">
-                    <!-- Close Button -->
-                    <button onclick="closeQuickView()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
+        document.body.style.overflow = 'auto';
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
-                        <!-- Product Image -->
-                        <div class="flex justify-center items-center">
-                            <img id="modalMainImage" src="" alt="Product Image" class="rounded-2xl object-cover w-full h-[400px]">
-                        </div>
+        // Reset quantity to 1 when closing modal
+        const quantityInput = document.getElementById('quantity');
+        if (quantityInput) {
+            quantityInput.value = 1;
+        }
+    }
 
-                        <!-- Product Info -->
-                        <div class="flex flex-col justify-between">
-                            <div>
-                                <!-- Category Badge -->
-                                <div class="mb-4">
-                                    <span id="modalCategory" class="inline-block px-3 py-1 bg-[#1D293D] text-white text-xs font-semibold rounded-full uppercase tracking-wider">SPORTS</span>
-                                </div>
+    // Quantity control functions
+    function increaseQuantity() {
+        const quantityInput = document.getElementById('quantity');
+        if (quantityInput) {
+            const currentQty = parseInt(quantityInput.value) || 1;
+            const maxQty = parseInt(quantityInput.getAttribute('max')) || 10;
 
-                                <h2 id="modalTitle" class="text-3xl font-bold text-gray-900 mb-4">Product Title</h2>
+            if (currentQty < maxQty) {
+                quantityInput.value = currentQty + 1;
+            }
+        }
+    }
 
-                                <!-- Rating Section -->
-                                <div id="modalRating" class="flex items-center mb-4">
-                                    <i class="fas fa-star text-yellow-400"></i>
-                                    <i class="fas fa-star text-yellow-400"></i>
-                                    <i class="fas fa-star text-yellow-400"></i>
-                                    <i class="fas fa-star text-yellow-400"></i>
-                                    <i class="fas fa-star text-yellow-400"></i>
-                                    <span class="text-gray-500 ml-2">(4.8)</span>
-                                </div>
+    function decreaseQuantity() {
+        const quantityInput = document.getElementById('quantity');
+        if (quantityInput) {
+            const currentQty = parseInt(quantityInput.value) || 1;
+            const minQty = parseInt(quantityInput.getAttribute('min')) || 1;
 
-                                <!-- Price Section -->
-                                <div class="flex items-baseline space-x-3 mb-6">
-                                    <span id="modalPrice" class="text-3xl font-bold text-[#1D293D]">$: 0</span>
-                                    <span id="modalOriginalPrice" class="text-gray-500 line-through text-xl"></span>
-                                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-semibold">Save 20%</span>
-                                </div>
+            if (currentQty > minQty) {
+                quantityInput.value = currentQty - 1;
+            }
+        }
+    }
 
-                                <!-- Enhanced Description -->
-                                <div class="mb-6">
-                                    <h4 class="font-semibold text-gray-900 mb-2">Description:</h4>
-                                    <p id="modalDescription" class="text-gray-700 leading-relaxed">This is a brief description of the product. You can replace it with dynamic product details from your database.</p>
-                                </div>
+    // Add to cart and wishlist functions
+    function addToCart(productId) {
+        // Use the global addToCart function from header if available
+        if (window.addToCart) {
+            window.addToCart(productId);
+        } else {
+            console.log('Adding product to cart:', productId);
+            showMessage('Product added to cart!', 'success');
+        }
+    }
 
-                                <!-- Product Features -->
-                                <div class="mb-6">
-                                    <h4 class="font-semibold text-gray-900 mb-2">Features:</h4>
-                                    <ul class="text-gray-700 text-sm space-y-1">
-                                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> High Quality Content</li>
-                                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Fast Delivery</li>
-                                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Money Back Guarantee</li>
-                                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> 24/7 Customer Support</li>
-                                    </ul>
-                                </div>
-                            </div>
+    function addToWishlist(productId) {
+        let productName = 'Product';
 
-                            <!-- Quantity & Buttons -->
-                            <div class="space-y-4">
-                                <!-- Quantity Selector -->
-                                <div class="flex items-center justify-between bg-gray-50 rounded-xl p-4">
-                                    <span class="font-semibold text-gray-800">Quantity:</span>
-                                    <div class="flex items-center bg-white rounded-lg border-2 border-gray-200">
-                                        <button onclick="decreaseQuantity()" class="px-4 py-2 hover:bg-gray-100 rounded-l-lg transition-colors font-bold text-gray-600">
-                                            <i class="fas fa-minus text-sm"></i>
-                                        </button>
-                                        <input type="number" id="quantity" value="1" min="1" max="10" class="w-16 text-center border-0 focus:ring-0 font-semibold text-gray-800" readonly>
-                                        <button onclick="increaseQuantity()" class="px-4 py-2 hover:bg-gray-100 rounded-r-lg transition-colors font-bold text-gray-600">
-                                            <i class="fas fa-plus text-sm"></i>
-                                        </button>
-                                    </div>
-                                </div>
+        const productCard = document.querySelector(`[data-product="${productId}"]`);
+        if (productCard) {
+            const titleElement = productCard.querySelector('h3');
+            productName = titleElement ? titleElement.innerText.trim() : 'Product';
+        }
 
-                                <!-- Action Buttons -->
-                                <div class="space-y-3">
-                                    <button onclick="addToCart(currentProductId)" class="w-full bg-gradient-to-r from-[#1D293D] to-[#243447] text-white py-3 rounded-xl font-bold text-lg hover:from-[#ec4642] hover:to-[#d63031] transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 duration-300">
-                                        <i class="fas fa-shopping-cart mr-2"></i>Add to Cart
-                                    </button>
+        console.log('Adding to wishlist:', { productId, productName });
+        showMessage(`❤️ Added "${productName}" to wishlist!`, 'info');
+    }
 
-                                    <button onclick="addToWishlist(currentProductId)" class="w-full border-2 border-gray-300 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all duration-300">
-                                        <i class="far fa-heart mr-2"></i>Add to Wishlist
-                                    </button>
-                                </div>
-
-                                <!-- Additional Info -->
-                                <div class="pt-4 border-t border-gray-200 text-center">
-                                    <div class="flex items-center justify-center text-green-600 text-sm mb-2">
-                                        <i class="fas fa-truck mr-2"></i>Free shipping on orders over $100
-                                    </div>
-                                    <div class="flex items-center justify-center text-gray-500 text-sm">
-                                        <i class="fas fa-shield-alt mr-2"></i>30-day money-back guarantee
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    function showMessage(message, type = 'success') {
+        const alert = document.createElement('div');
+        alert.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white font-medium transform transition-all duration-300 ${
+            type === 'success' ? 'bg-green-500' : 
+            type === 'error' ? 'bg-red-500' : 
+            'bg-blue-500'
+        }`;
+        alert.innerHTML = `
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation' : 'info'}-circle"></i>
+                <span>${message}</span>
             </div>
-        </div>
+        `;
+        
+        document.body.appendChild(alert);
+        
+        setTimeout(() => {
+            if (alert) {
+                alert.style.transform = 'translateX(100%)';
+                setTimeout(() => alert.remove(), 300);
+            }
+        }, 3000);
+    }
+</script>

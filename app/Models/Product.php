@@ -12,7 +12,7 @@ class Product extends Model
 
     public function category()
     {
-        return $this->belongsTo(productCategory::class, 'cat_id');
+        return $this->belongsTo(ProductCategory::class, 'cat_id');
     }
 
     public function isInStock()

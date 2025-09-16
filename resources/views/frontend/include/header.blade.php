@@ -48,19 +48,27 @@ if (! isset($cart)) {
 
             <!-- Search Bar - Desktop -->
             <div class="hidden lg:flex flex-1 max-w-2xl mx-8">
-                <div class="relative w-full group">
+                <form action="{{ route('products.search') }}" method="GET" class="relative w-full group">
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <i class="fas fa-search text-gray-400 group-focus-within:text-primary-600 transition-colors"></i>
                     </div>
                     <input type="text" 
+                           id="searchInput"
+                           name="query"
+                           value="{{ request('query') }}"
                            placeholder="Search for luxury products..." 
-                           class="w-full pl-12 pr-6 py-4 border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-500 transition-all duration-300 bg-gray-50 hover:bg-white text-gray-900 placeholder-gray-500">
+                           class="w-full pl-12 pr-6 py-4 border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-500 transition-all duration-300 bg-gray-50 hover:bg-white text-gray-900 placeholder-gray-500"
+                           autocomplete="off">
                     <div class="absolute inset-y-0 right-0 pr-4 flex items-center">
-                        <button class="btn-premium text-white px-6 py-2 rounded-xl font-medium hover-lift">
+                        <button type="submit" class="btn-premium text-white px-6 py-2 rounded-xl font-medium hover-lift">
                             Search
                         </button>
                     </div>
-                </div>
+                    <!-- Search Suggestions Dropdown -->
+                    <div id="searchSuggestions" class="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl mt-2 shadow-xl z-50 hidden max-h-96 overflow-y-auto">
+                        <!-- Dynamic suggestions will be loaded here -->
+                    </div>
+                </form>
             </div>
 
             <!-- Desktop Navigation Icons -->
@@ -206,10 +214,15 @@ if (! isset($cart)) {
     
     <div class="p-6">
         <!-- Mobile Search -->
-        <div class="relative mb-6">
+        <form action="{{ route('products.search') }}" method="GET" class="relative mb-6">
             <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-            <input type="text" placeholder="Search products..." class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
-        </div>
+            <input type="text" 
+                   name="query" 
+                   value="{{ request('query') }}"
+                   placeholder="Search products..." 
+                   class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                   autocomplete="off">
+        </form>
         
         <!-- Mobile Navigation -->
         <nav class="space-y-4">
@@ -593,19 +606,43 @@ if (! isset($cart)) {
 </script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('=== CART INITIALIZATION ===');
         const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
         const cartOffcanvas = document.getElementById('cartOffcanvas');
         const cartItemsContainer = document.getElementById('cartItemsContainer');
         const cartCountEl = document.getElementById('cartCount');
         const cartSubtotalEl = document.getElementById('cartSubtotal');
 
+        console.log('CSRF Token:', csrfToken ? 'Found' : 'NOT FOUND');
+        console.log('cartOffcanvas:', cartOffcanvas ? 'Found' : 'NOT FOUND');
+        console.log('cartItemsContainer:', cartItemsContainer ? 'Found' : 'NOT FOUND');
+        console.log('cartCountEl:', cartCountEl ? 'Found' : 'NOT FOUND');
+        console.log('cartSubtotalEl:', cartSubtotalEl ? 'Found' : 'NOT FOUND');
+        console.log('==============================');
+
+        if (!cartItemsContainer) {
+            console.error('CRITICAL: cartItemsContainer not found!');
+            return;
+        }
+
+        if (!cartOffcanvas) {
+            console.error('CRITICAL: cartOffcanvas not found!');
+            return;
+        }
+
         // Render cart items + subtotal + badge
-        function renderCart(cart) {
+        window.renderCart = function(cart) {
+            console.log('renderCart called with:', cart); // Debug log
+            if (!cartItemsContainer) {
+                console.error('cartItemsContainer not found!');
+                return;
+            }
+            
             cartItemsContainer.innerHTML = '';
             let subtotal = 0;
             let totalCount = 0;
 
-            if (cart.length === 0) {
+            if (!cart || cart.length === 0) {
                 cartItemsContainer.innerHTML = `
                     <div class="text-center py-16 text-gray-400">
                         <div class="mb-4">
@@ -619,8 +656,8 @@ if (! isset($cart)) {
                         </button>
                     </div>
                 `;
-                cartSubtotalEl.innerText = `TK 0.00`;
-                cartCountEl.innerText = '0';
+                if (cartSubtotalEl) cartSubtotalEl.innerText = `TK 0.00`;
+                if (cartCountEl) cartCountEl.innerText = '0';
                 return;
             }
 
@@ -629,6 +666,8 @@ if (! isset($cart)) {
                 const product = item.product || item;
                 const quantity = item.quantity || 1;
                 const price = item.price || product.amount || 0;
+                
+                console.log('Cart item processed:', { product, quantity, price }); // Debug log
                 
                 subtotal += quantity * parseFloat(price);
                 totalCount += quantity;
@@ -667,8 +706,8 @@ if (! isset($cart)) {
                 cartItemsContainer.appendChild(div);
             });
 
-            cartSubtotalEl.innerText = `TK ${subtotal.toFixed(2)}`;
-            cartCountEl.innerText = totalCount;
+            if (cartSubtotalEl) cartSubtotalEl.innerText = `TK ${subtotal.toFixed(2)}`;
+            if (cartCountEl) cartCountEl.innerText = totalCount;
         }
 
         // Add to cart
@@ -732,6 +771,19 @@ if (! isset($cart)) {
         }
 
         window.addToCart = function(productId, quantity = 1) {
+            console.log('=== ADD TO CART CALLED ===');
+            console.log('Product ID:', productId, 'Quantity:', quantity);
+            
+            // Check if quantity is being specified from a modal
+            const quantityInput = document.getElementById('quantity');
+            const modal = document.getElementById('quickViewModal');
+            
+            if (quantityInput && modal && modal.style.display !== 'none') {
+                quantity = parseInt(quantityInput.value) || 1;
+                console.log('Quantity from modal:', quantity);
+            }
+            
+            console.log('Sending request to cart.add...');
             fetch("{{ route('cart.add') }}", {
                     method: 'POST',
                     headers: {
@@ -743,15 +795,38 @@ if (! isset($cart)) {
                         quantity: quantity
                     })
                 })
-                .then(res => res.json())
+                .then(res => {
+                    console.log('Response status:', res.status);
+                    return res.json();
+                })
                 .then(data => {
+                    console.log('Add to cart response:', data); // Debug log
                     if (data.success) {
-                        renderCart(data.cart); // Update badge + offcanvas
-                        cartOffcanvas.classList.remove('translate-x-full'); // Show offcanvas
-                        
-                        // Show success popup
-                        showCartPopup('Successfully added item to cart!', 'success');
+                        // Use the cart data from the add response directly
+                        if (data.cart) {
+                            console.log('Rendering cart with data:', data.cart); // Debug log
+                            renderCart(data.cart);
+                            
+                            // Show offcanvas
+                            console.log('Opening cart offcanvas'); // Debug log
+                            if (cartOffcanvas) {
+                                cartOffcanvas.classList.remove('translate-x-full');
+                            } else {
+                                console.error('cartOffcanvas element not found!');
+                            }
+                            
+                            // Show success popup
+                            showCartPopup('Successfully added item to cart!', 'success');
+                            
+                            // Close modal if it's open
+                            if (modal && modal.style.display !== 'none' && typeof closeQuickView === 'function') {
+                                closeQuickView();
+                            }
+                        } else {
+                            console.warn('No cart data in response:', data);
+                        }
                     } else {
+                        console.error('Add to cart failed:', data);
                         showCartPopup(data.message || 'Failed to add product', 'error');
                     }
                 })
@@ -778,7 +853,16 @@ if (! isset($cart)) {
                 })
                 .then(res => res.json())
                 .then(data => {
-                    if (data.success) renderCart(data.cart);
+                    if (data.success) {
+                        renderCart(data.cart);
+                        showCartPopup('Cart updated successfully!', 'success');
+                    } else {
+                        showCartPopup(data.message || 'Failed to update cart', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Update cart error:', error);
+                    showCartPopup('Something went wrong. Please try again.', 'error');
                 });
         }
 
@@ -796,7 +880,16 @@ if (! isset($cart)) {
                 })
                 .then(res => res.json())
                 .then(data => {
-                    if (data.success) renderCart(data.cart);
+                    if (data.success) {
+                        renderCart(data.cart);
+                        showCartPopup('Item removed from cart!', 'success');
+                    } else {
+                        showCartPopup(data.message || 'Failed to remove item', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Remove cart error:', error);
+                    showCartPopup('Something went wrong. Please try again.', 'error');
                 });
         }
 
@@ -811,11 +904,107 @@ if (! isset($cart)) {
         });
 
         // Initial load: fetch cart
+        console.log('Loading initial cart data...'); // Debug log
         fetch("{{ route('cart.index') }}")
-            .then(res => res.json())
+            .then(res => {
+                console.log('Cart index response status:', res.status); // Debug log
+                return res.json();
+            })
             .then(data => {
-                if (data.success) renderCart(data.cart);
+                console.log('Initial cart data loaded:', data); // Debug log
+                if (data.success && data.cart) {
+                    renderCart(data.cart);
+                } else {
+                    console.warn('No cart data or unsuccessful response');
+                    renderCart([]); // Render empty cart
+                }
+            })
+            .catch(error => {
+                console.error('Error loading initial cart:', error);
+                renderCart([]); // Render empty cart on error
             });
+        
+        // Debug function to test cart rendering (can be called from browser console)
+        window.testCartRender = function() {
+            console.log('Testing cart rendering...');
+            console.log('cartItemsContainer:', cartItemsContainer);
+            console.log('cartOffcanvas:', cartOffcanvas);
+            console.log('cartCountEl:', cartCountEl);
+            console.log('cartSubtotalEl:', cartSubtotalEl);
+            
+            const testCart = [
+                {
+                    product_id: 1,
+                    product: {
+                        id: 1,
+                        name: 'Test Product',
+                        image: 'test-product.jpg',
+                        amount: 99.99
+                    },
+                    quantity: 2,
+                    price: 99.99
+                }
+            ];
+            console.log('Test cart data:', testCart);
+            renderCart(testCart);
+            if (cartOffcanvas) {
+                cartOffcanvas.classList.remove('translate-x-full');
+            }
+        };
+        
+        // Debug function to check current cart state
+        window.checkCartState = function() {
+            console.log('=== CART STATE DEBUG ===');
+            console.log('cartItemsContainer exists:', !!cartItemsContainer);
+            console.log('cartOffcanvas exists:', !!cartOffcanvas);
+            console.log('cartCountEl exists:', !!cartCountEl);
+            console.log('cartSubtotalEl exists:', !!cartSubtotalEl);
+            console.log('Current cart HTML:', cartItemsContainer?.innerHTML);
+            console.log('========================');
+        };
+        
+        // Manual test for adding to cart (use a known product ID)
+        window.testAddToCart = function() {
+            console.log('Testing add to cart with product ID 1...');
+            addToCart(1, 1);
+        };
+        
+        // Force render a test cart to verify display works
+        window.forceTestCart = function() {
+            console.log('Force testing cart display...');
+            if (!cartItemsContainer) {
+                console.error('cartItemsContainer not found!');
+                return;
+            }
+            
+            // Manually create a cart item
+            cartItemsContainer.innerHTML = `
+                <div class="group bg-white rounded-xl p-6 mb-4 shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 hover:border-[#ec4642]/20">
+                    <div class="flex items-center space-x-4">
+                        <div class="relative overflow-hidden rounded-lg">
+                            <img src="https://via.placeholder.com/80x80/f8fafc/64748b?text=Test" class="w-20 h-20 object-cover rounded-lg">
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-semibold text-[#1D293D] text-base">Test Product</h4>
+                            <p class="text-[#ec4642] font-bold text-base">TK 99.99</p>
+                            <div class="flex items-center space-x-3">
+                                <span class="bg-gradient-to-r from-[#1D293D] to-[#ec4642] text-white px-4 py-2 rounded-full text-sm font-bold">1</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Update totals
+            if (cartSubtotalEl) cartSubtotalEl.innerText = 'TK 99.99';
+            if (cartCountEl) cartCountEl.innerText = '1';
+            
+            // Open cart
+            if (cartOffcanvas) {
+                cartOffcanvas.classList.remove('translate-x-full');
+                console.log('Cart offcanvas opened with test data');
+            }
+        };
     });
 </script>
 
@@ -836,87 +1025,120 @@ if (! isset($cart)) {
         const userDropdownToggle = document.getElementById('userDropdownToggle');
         const userDropdown = document.getElementById('userDropdown');
 
-        userDropdownToggle.addEventListener('click', function(e) {
-            e.stopPropagation();
-            userDropdown.classList.toggle('hidden');
-        });
+        if (userDropdownToggle && userDropdown) {
+            userDropdownToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                userDropdown.classList.toggle('hidden');
+            });
 
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function() {
-            userDropdown.classList.add('hidden');
-        });
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function() {
+                userDropdown.classList.add('hidden');
+            });
+        }
 
         // Login Modal
         const loginBtn = document.getElementById('loginBtn');
         const loginModal = document.getElementById('loginModal');
         const closeLoginModal = document.getElementById('closeLoginModal');
 
-        loginBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            loginModal.classList.remove('hidden');
-            userDropdown.classList.add('hidden');
-        });
+        if (loginBtn && loginModal && closeLoginModal) {
+            loginBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                loginModal.classList.remove('hidden');
+                if (userDropdown) userDropdown.classList.add('hidden');
+            });
 
-        closeLoginModal.addEventListener('click', function() {
-            loginModal.classList.add('hidden');
-        });
+            closeLoginModal.addEventListener('click', function() {
+                loginModal.classList.add('hidden');
+            });
+        }
 
         // Signup Modal
         const signupBtn = document.getElementById('signupBtn');
         const signupModal = document.getElementById('signupModal');
         const closeSignupModal = document.getElementById('closeSignupModal');
 
-        signupBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            signupModal.classList.remove('hidden');
-            userDropdown.classList.add('hidden');
-        });
+        if (signupBtn && signupModal && closeSignupModal) {
+            signupBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                signupModal.classList.remove('hidden');
+                if (userDropdown) userDropdown.classList.add('hidden');
+            });
 
-        closeSignupModal.addEventListener('click', function() {
-            signupModal.classList.add('hidden');
-        });
+            closeSignupModal.addEventListener('click', function() {
+                signupModal.classList.add('hidden');
+            });
+        }
 
         // Switch between Login and Signup
         const switchToSignup = document.getElementById('switchToSignup');
         const switchToLogin = document.getElementById('switchToLogin');
 
-        switchToSignup.addEventListener('click', function(e) {
-            e.preventDefault();
-            loginModal.classList.add('hidden');
-            signupModal.classList.remove('hidden');
-        });
+        if (switchToSignup && switchToLogin && loginModal && signupModal) {
+            switchToSignup.addEventListener('click', function(e) {
+                e.preventDefault();
+                loginModal.classList.add('hidden');
+                signupModal.classList.remove('hidden');
+            });
 
-        switchToLogin.addEventListener('click', function(e) {
-            e.preventDefault();
-            signupModal.classList.add('hidden');
-            loginModal.classList.remove('hidden');
-        });
+            switchToLogin.addEventListener('click', function(e) {
+                e.preventDefault();
+                signupModal.classList.add('hidden');
+                loginModal.classList.remove('hidden');
+            });
+        }
 
         // Cart Offcanvas
         const cartToggle = document.getElementById('cartToggle');
         const cartOffcanvas = document.getElementById('cartOffcanvas');
         const closeCartOffcanvas = document.getElementById('closeCartOffcanvas');
 
-        cartToggle.addEventListener('click', function() {
-            cartOffcanvas.classList.remove('translate-x-full');
-        });
+        if (cartToggle && cartOffcanvas) {
+            cartToggle.addEventListener('click', function() {
+                cartOffcanvas.classList.remove('translate-x-full');
+            });
+        }
 
-        closeCartOffcanvas.addEventListener('click', function() {
-            cartOffcanvas.classList.add('translate-x-full');
-        });
+        if (closeCartOffcanvas && cartOffcanvas) {
+            closeCartOffcanvas.addEventListener('click', function() {
+                cartOffcanvas.classList.add('translate-x-full');
+            });
+        }
 
         // Close modals when clicking outside
-        loginModal.addEventListener('click', function(e) {
-            if (e.target === loginModal) {
-                loginModal.classList.add('hidden');
-            }
-        });
+        if (loginModal) {
+            loginModal.addEventListener('click', function(e) {
+                if (e.target === loginModal) {
+                    loginModal.classList.add('hidden');
+                }
+            });
+        }
 
-        signupModal.addEventListener('click', function(e) {
-            if (e.target === signupModal) {
-                signupModal.classList.add('hidden');
-            }
-        });
+        if (signupModal) {
+            signupModal.addEventListener('click', function(e) {
+                if (e.target === signupModal) {
+                    signupModal.classList.add('hidden');
+                }
+            });
+        }
+        
+        // Mobile Menu
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const closeMobileMenu = document.getElementById('closeMobileMenu');
+        
+        if (mobileMenuToggle && mobileMenu) {
+            mobileMenuToggle.addEventListener('click', function() {
+                mobileMenu.classList.remove('-translate-x-full');
+            });
+        }
+        
+        if (closeMobileMenu && mobileMenu) {
+            closeMobileMenu.addEventListener('click', function() {
+                mobileMenu.classList.add('-translate-x-full');
+            });
+        }
     });
 </script>
 
@@ -948,85 +1170,7 @@ if (! isset($cart)) {
 
 <!-- Scripts -->
 <script>
-    function addToCart(productId) {
-        let quantity = 1;
-        const quantityInput = document.getElementById('quantity');
-        const modal = document.getElementById('quickViewModal');
-
-        if (quantityInput && modal && modal.style.display !== 'none') {
-            quantity = parseInt(quantityInput.value) || 1;
-        }
-
-        fetch('/cart/add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: JSON.stringify({
-                    product_id: productId,
-                    quantity: quantity
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    const container = document.getElementById('cartItemsContainer');
-                    container.innerHTML = '';
-                    let subtotal = 0;
-
-                    data.cart.forEach(item => {
-                        subtotal += item.product.amount * item.quantity;
-
-                        const div = document.createElement('div');
-                        div.className = 'group bg-white rounded-xl p-6 mb-4 shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 hover:border-[#ec4642]/20';
-                        div.innerHTML = `
-                            <div class="flex items-center space-x-4">
-                                <div class="relative overflow-hidden rounded-lg">
-                                    <img src="${item.product.image ? '/storage/' + item.product.image : 'https://via.placeholder.com/80x80/f8fafc/64748b?text=No+Image'}" alt="${item.product.name}" class="w-20 h-20 object-cover rounded-lg group-hover:scale-105 transition-transform duration-300">
-                                    <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <h3 class="font-semibold text-[#1D293D] text-base truncate group-hover:text-[#ec4642] transition-colors duration-300 mb-2">${item.product.name}</h3>
-                                    <p class="text-[#ec4642] font-bold text-base mb-3">TK ${parseFloat(item.product.amount).toFixed(2)}</p>
-                                    <div class="flex items-center space-x-3">
-                                        <button onclick="updateCart(${item.product.id}, ${item.quantity - 1})" 
-                                                class="w-9 h-9 flex items-center justify-center bg-[#1D293D] hover:bg-[#ec4642] text-white rounded-full transition-all duration-300 text-sm">
-                                            <i class="fas fa-minus"></i>
-                                        </button>
-                                        <span class="bg-gradient-to-r from-[#1D293D] to-[#ec4642] text-white px-4 py-2 rounded-full text-sm font-bold min-w-[3rem] text-center">${item.quantity}</span>
-                                        <button onclick="updateCart(${item.product.id}, ${item.quantity + 1})" 
-                                                class="w-9 h-9 flex items-center justify-center bg-[#1D293D] hover:bg-[#ec4642] text-white rounded-full transition-all duration-300 text-sm">
-                                            <i class="fas fa-plus"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="flex flex-col space-y-2">
-                                    <button onclick="removeCart(${item.product.id})" 
-                                            class="w-9 h-9 flex items-center justify-center bg-red-100 text-red-500 hover:bg-red-500 hover:text-white rounded-full transition-all duration-300">
-                                        <i class="fas fa-trash text-sm"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        `;
-                        container.appendChild(div);
-                    });
-
-                    document.getElementById('cartSubtotal').innerText = `TK ${subtotal.toFixed(2)}`;
-
-                    // Show offcanvas
-                    document.getElementById('cartOffcanvas').classList.remove('translate-x-full');
-                    
-                    // Show success popup
-                    showCartPopup('Successfully added item to cart!', 'success');
-
-                    if (modal && modal.style.display !== 'none') closeQuickView();
-                } else {
-                    showCartPopup(data.message || 'Failed to add product', 'error');
-                }
-            })
-            .catch(err => console.error(err));
-    }
+    // Use the existing window.addToCart function instead of this duplicate
 
     // Modal Password Validation
     document.addEventListener('DOMContentLoaded', function() {
@@ -1135,4 +1279,205 @@ if (! isset($cart)) {
             });
         }
     });
+</script>
+
+<!-- Enhanced Search Functionality -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const searchSuggestions = document.getElementById('searchSuggestions');
+        const mobileSearchInput = document.querySelector('input[name="query"]');
+        
+        // Search suggestions for desktop
+        if (searchInput && searchSuggestions) {
+            let searchTimeout;
+            
+            searchInput.addEventListener('input', function() {
+                const query = this.value.trim();
+                
+                // Clear previous timeout
+                if (searchTimeout) {
+                    clearTimeout(searchTimeout);
+                }
+                
+                if (query.length >= 2) {
+                    // Show loading state
+                    searchSuggestions.innerHTML = `
+                        <div class="p-4 text-center">
+                            <i class="fas fa-spinner fa-spin text-gray-400"></i>
+                            <span class="ml-2 text-gray-600">Searching...</span>
+                        </div>
+                    `;
+                    searchSuggestions.classList.remove('hidden');
+                    
+                    // Debounce search requests
+                    searchTimeout = setTimeout(() => {
+                        fetchSearchSuggestions(query);
+                    }, 300);
+                } else {
+                    if (searchSuggestions) {
+                        searchSuggestions.classList.add('hidden');
+                    }
+                }
+            });
+            
+            // Hide suggestions when clicking outside
+            document.addEventListener('click', function(e) {
+                if (searchSuggestions && !searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
+                    searchSuggestions.classList.add('hidden');
+                }
+            });
+            
+            // Handle keyboard navigation
+            searchInput.addEventListener('keydown', function(e) {
+                const suggestions = searchSuggestions.querySelectorAll('.suggestion-item');
+                const activeSuggestion = searchSuggestions.querySelector('.suggestion-item.active');
+                
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (activeSuggestion) {
+                        activeSuggestion.classList.remove('active');
+                        const next = activeSuggestion.nextElementSibling;
+                        if (next && next.classList.contains('suggestion-item')) {
+                            next.classList.add('active');
+                        } else {
+                            suggestions[0]?.classList.add('active');
+                        }
+                    } else {
+                        suggestions[0]?.classList.add('active');
+                    }
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (activeSuggestion) {
+                        activeSuggestion.classList.remove('active');
+                        const prev = activeSuggestion.previousElementSibling;
+                        if (prev && prev.classList.contains('suggestion-item')) {
+                            prev.classList.add('active');
+                        } else {
+                            suggestions[suggestions.length - 1]?.classList.add('active');
+                        }
+                    }
+                } else if (e.key === 'Enter') {
+                    if (activeSuggestion) {
+                        e.preventDefault();
+                        activeSuggestion.click();
+                    }
+                } else if (e.key === 'Escape') {
+                    if (searchSuggestions) {
+                        searchSuggestions.classList.add('hidden');
+                    }
+                }
+            });
+        }
+        
+        // Enhanced mobile search
+        if (mobileSearchInput) {
+            mobileSearchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const query = this.value.trim();
+                    if (!query) {
+                        e.preventDefault();
+                        alert('Please enter a search term');
+                    }
+                }
+            });
+        }
+    });
+    
+    // Fetch search suggestions
+    function fetchSearchSuggestions(query) {
+        const searchSuggestions = document.getElementById('searchSuggestions');
+        
+        if (!searchSuggestions) {
+            console.error('Search suggestions container not found');
+            return;
+        }
+        
+        // Updated suggestions based on actual categories and products
+        const smartSuggestions = [
+            'Books',      // Will find Fiction, History, Non-Fiction, Science
+            'Electronics', // Will find Laptops
+            'Fashion',    // Will find Women, Men, Kids
+            'Beauty',     // Will find Makeup
+            'Sports',     // Will find Football, Basketball
+            'Home',       // Will find Indoor Plants, Garden Tools, Home Decor, Outdoor, Furnitures
+            'Garden',     // Will find garden-related items
+            'Fiction',    // Direct category match
+            'History',    // Direct category match
+            'Science',    // Direct category match
+            'Laptops',    // Direct category match
+            'Makeup',     // Direct category match
+            'Football',   // Direct category match
+            'Basketball', // Direct category match
+        ];
+        
+        const filteredSuggestions = smartSuggestions.filter(item => 
+            item.toLowerCase().includes(query.toLowerCase())
+        );
+        
+        if (filteredSuggestions.length > 0) {
+            let suggestionsHTML = '';
+            filteredSuggestions.forEach(suggestion => {
+                const highlightedSuggestion = suggestion.replace(
+                    new RegExp(query, 'gi'),
+                    `<mark class="bg-yellow-200 px-1 rounded">$&</mark>`
+                );
+                suggestionsHTML += `
+                    <div class="suggestion-item p-3 hover:bg-gray-50 cursor-pointer flex items-center space-x-3 border-b border-gray-100 last:border-b-0" 
+                         onclick="selectSuggestion('${suggestion}')">
+                        <i class="fas fa-search text-gray-400"></i>
+                        <span>${highlightedSuggestion}</span>
+                    </div>
+                `;
+            });
+            
+            suggestionsHTML += `
+                <div class="p-3 bg-gray-50 border-t border-gray-200">
+                    <button onclick="searchFor('${query}')" 
+                            class="text-primary-600 hover:text-primary-700 font-medium text-sm">
+                        <i class="fas fa-arrow-right mr-2"></i>Search for "${query}"
+                    </button>
+                </div>
+            `;
+            
+            searchSuggestions.innerHTML = suggestionsHTML;
+        } else {
+            searchSuggestions.innerHTML = `
+                <div class="p-4 text-center text-gray-600">
+                    <i class="fas fa-search text-gray-400 mb-2"></i>
+                    <p>No suggestions found</p>
+                    <button onclick="searchFor('${query}')" 
+                            class="mt-2 text-primary-600 hover:text-primary-700 font-medium text-sm">
+                        Search anyway
+                    </button>
+                </div>
+            `;
+        }
+        
+        searchSuggestions.classList.remove('hidden');
+    }
+    
+    // Select a suggestion
+    function selectSuggestion(suggestion) {
+        const searchInput = document.getElementById('searchInput');
+        const searchSuggestions = document.getElementById('searchSuggestions');
+        
+        if (searchInput && searchSuggestions) {
+            searchInput.value = suggestion;
+            searchSuggestions.classList.add('hidden');
+            searchInput.form.submit();
+        }
+    }
+    
+    // Search for a specific term
+    function searchFor(query) {
+        const searchInput = document.getElementById('searchInput');
+        const searchSuggestions = document.getElementById('searchSuggestions');
+        
+        if (searchInput && searchSuggestions) {
+            searchInput.value = query;
+            searchSuggestions.classList.add('hidden');
+            searchInput.form.submit();
+        }
+    }
 </script>

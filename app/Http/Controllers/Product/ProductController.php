@@ -144,6 +144,37 @@ class ProductController extends Controller
         return view('product.view', compact('product'));
     }
 
+    // Get product details for AJAX (Quick View)
+    public function getProductDetails($id)
+    {
+        try {
+            $product = Product::with('category')->findOrFail($id);
+            
+            return response()->json([
+                'success' => true,
+                'product' => [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'details' => $product->details,
+                    'amount' => $product->amount,
+                    'original_price' => $product->original_price,
+                    'discount' => $product->discount,
+                    'stock' => $product->stock,
+                    'available_stock' => $product->available_stock ?? $product->stock,
+                    'image' => $product->image ? asset('storage/' . $product->image) : null,
+                    'category' => $product->category->name ?? 'N/A',
+                    'created_at' => $product->created_at->format('M d, Y'),
+                    'updated_at' => $product->updated_at->format('M d, Y'),
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Product not found'
+            ], 404);
+        }
+    }
+
 
     public function index()
     {

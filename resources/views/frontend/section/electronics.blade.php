@@ -330,133 +330,67 @@ return [
     let currentProductId = null;
 
     function openQuickView(productId) {
-        const modal = document.getElementById('quickViewModal');
-        modal.style.display = 'block';
-        modal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
+        console.log('openQuickView called with ID:', productId);
+        const productCard = document.querySelector(`[data-product="${productId}"]`);
+
+        if (!productCard) {
+            console.error('Product card not found for ID:', productId);
+            return;
+        }
+
+        console.log('Opening quick view for product:', productId);
         currentProductId = productId;
 
-        // Find product
-        const product = productsData.find(p => p.id == productId);
-        if (!product) return;
+        const modal = document.getElementById('quickViewModal');
+        modal.style.display = 'flex';
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+
+        // Extract product info from the card
+        const productImage = productCard.querySelector('img').src;
+        const productName = productCard.querySelector('h3').textContent.trim();
+        const priceElement = productCard.querySelector('.text-xl.font-black');
+        const productPrice = priceElement ? priceElement.textContent : 'TK 0';
+        const originalPriceEl = productCard.querySelector('.line-through');
+        const productCategory = productCard.getAttribute('data-category') || 'ELECTRONICS';
+        const discountEl = productCard.querySelector('.bg-gradient-to-r.from-red-500');
 
         // Set modal fields
-        document.getElementById('modalMainImage').src = product.image;
-        document.getElementById('modalMainImage').alt = product.name;
-        document.getElementById('modalCategory').textContent = product.category ? product.category.toUpperCase() : 'ELECTRONICS';
-        document.getElementById('modalTitle').textContent = product.name;
+        document.getElementById('modalMainImage').src = productImage;
+        document.getElementById('modalMainImage').alt = productName;
+        document.getElementById('modalCategory').textContent = productCategory.toUpperCase();
+        document.getElementById('modalTitle').textContent = productName;
+        document.getElementById('modalPrice').textContent = productPrice;
 
-        // Rating
-        const ratingDiv = document.getElementById('modalRating');
-        ratingDiv.innerHTML = '';
-        const fullStars = Math.floor(product.rating);
-        const halfStar = product.rating % 1 >= 0.5;
-        for (let i = 0; i < 5; i++) {
-            if (i < fullStars) {
-                ratingDiv.innerHTML += '<i class="fas fa-star text-yellow-400"></i>';
-            } else if (i === fullStars && halfStar) {
-                ratingDiv.innerHTML += '<i class="fas fa-star-half-alt text-yellow-400"></i>';
-            } else {
-                ratingDiv.innerHTML += '<i class="far fa-star text-yellow-400"></i>';
-            }
-        }
-        ratingDiv.innerHTML += `<span class="text-gray-500 ml-2">(${product.rating})</span>`;
-
-        // Price
-        document.getElementById('modalPrice').textContent = 'TK: ' + Number(product.amount).toLocaleString();
-        if (product.original_price && Number(product.original_price) > Number(product.amount)) {
-            document.getElementById('modalOriginalPrice').textContent = 'TK: ' + Number(product.original_price).toLocaleString();
-            document.getElementById('modalDiscount').style.display = '';
-            document.getElementById('modalDiscount').textContent = `Save ${product.discount ? product.discount + '%' : Math.round(100 - (product.amount / product.original_price) * 100) + '%'}`;
+        if (originalPriceEl && originalPriceEl.textContent.trim()) {
+            document.getElementById('modalOriginalPrice').textContent = originalPriceEl.textContent;
+            document.getElementById('modalOriginalPrice').style.display = '';
         } else {
-            document.getElementById('modalOriginalPrice').textContent = '';
+            document.getElementById('modalOriginalPrice').style.display = 'none';
+        }
+
+        if (discountEl && discountEl.textContent.trim()) {
+            document.getElementById('modalDiscount').textContent = discountEl.textContent;
+            document.getElementById('modalDiscount').style.display = '';
+        } else {
             document.getElementById('modalDiscount').style.display = 'none';
         }
 
-        // Description
-        document.getElementById('modalDescription').textContent = product.description || 'No description available.';
-
-        // Features
-        const featuresList = document.getElementById('modalFeatures');
-        featuresList.innerHTML = '';
-        if (Array.isArray(product.features) && product.features.length > 0) {
-            product.features.forEach(f => {
-                featuresList.innerHTML += `<li class='flex items-center'><i class='fas fa-check text-green-500 mr-2'></i> ${f}</li>`;
-            });
-        } else {
-            featuresList.innerHTML = `<li class='flex items-center'><i class='fas fa-check text-green-500 mr-2'></i> High Quality Content</li><li class='flex items-center'><i class='fas fa-check text-green-500 mr-2'></i> Fast Delivery</li><li class='flex items-center'><i class='fas fa-check text-green-500 mr-2'></i> Money Back Guarantee</li><li class='flex items-center'><i class='fas fa-check text-green-500 mr-2'></i> 24/7 Customer Support</li>`;
-        }
-
-        // Reset quantity
-        document.getElementById('quantity').value = 1;
-    }
-
-    <
-    !--Place all JS at the end to avoid rendering as text-- >
-    @push('scripts') <
-        script >
-        // Make productsData available to JS
-        const productsData = @json($productsData);
-
-    let currentProductId = null;
-
-    function openQuickView(productId) {
-        const modal = document.getElementById('quickViewModal');
-        modal.style.display = 'block';
-        modal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-        currentProductId = productId;
-
-        // Find product
-        const product = productsData.find(p => p.id == productId);
-        if (!product) return;
-
-        // Set modal fields
-        document.getElementById('modalMainImage').src = product.image;
-        document.getElementById('modalMainImage').alt = product.name;
-        document.getElementById('modalCategory').textContent = product.category ? product.category.toUpperCase() : 'ELECTRONICS';
-        document.getElementById('modalTitle').textContent = product.name;
-
-        // Rating
+        // Set rating
         const ratingDiv = document.getElementById('modalRating');
-        ratingDiv.innerHTML = '';
-        const fullStars = Math.floor(product.rating);
-        const halfStar = product.rating % 1 >= 0.5;
-        for (let i = 0; i < 5; i++) {
-            if (i < fullStars) {
-                ratingDiv.innerHTML += '<i class="fas fa-star text-yellow-400"></i>';
-            } else if (i === fullStars && halfStar) {
-                ratingDiv.innerHTML += '<i class="fas fa-star-half-alt text-yellow-400"></i>';
-            } else {
-                ratingDiv.innerHTML += '<i class="far fa-star text-yellow-400"></i>';
-            }
-        }
-        ratingDiv.innerHTML += `<span class="text-gray-500 ml-2">(${product.rating})</span>`;
+        ratingDiv.innerHTML = '<i class="fas fa-star text-yellow-400"></i><i class="fas fa-star text-yellow-400"></i><i class="fas fa-star text-yellow-400"></i><i class="fas fa-star text-yellow-400"></i><i class="fas fa-star-half-alt text-yellow-400"></i><span class="text-gray-500 ml-2">(4.8)</span>';
 
-        // Price
-        document.getElementById('modalPrice').textContent = 'TK: ' + Number(product.amount).toLocaleString();
-        if (product.original_price && Number(product.original_price) > Number(product.amount)) {
-            document.getElementById('modalOriginalPrice').textContent = 'TK: ' + Number(product.original_price).toLocaleString();
-            document.getElementById('modalDiscount').style.display = '';
-            document.getElementById('modalDiscount').textContent = `Save ${product.discount ? product.discount + '%' : Math.round(100 - (product.amount / product.original_price) * 100) + '%'}`;
-        } else {
-            document.getElementById('modalOriginalPrice').textContent = '';
-            document.getElementById('modalDiscount').style.display = 'none';
-        }
+        // Set default description
+        document.getElementById('modalDescription').textContent = 'High quality electronics product with premium features and reliable performance.';
 
-        // Description
-        document.getElementById('modalDescription').textContent = product.description || 'No description available.';
-
-        // Features
+        // Set features
         const featuresList = document.getElementById('modalFeatures');
-        featuresList.innerHTML = '';
-        if (Array.isArray(product.features) && product.features.length > 0) {
-            product.features.forEach(f => {
-                featuresList.innerHTML += `<li class='flex items-center'><i class='fas fa-check text-green-500 mr-2'></i> ${f}</li>`;
-            });
-        } else {
-            featuresList.innerHTML = `<li class='flex items-center'><i class='fas fa-check text-green-500 mr-2'></i> High Quality Content</li><li class='flex items-center'><i class='fas fa-check text-green-500 mr-2'></i> Fast Delivery</li><li class='flex items-center'><i class='fas fa-check text-green-500 mr-2'></i> Money Back Guarantee</li><li class='flex items-center'><i class='fas fa-check text-green-500 mr-2'></i> 24/7 Customer Support</li>`;
-        }
+        featuresList.innerHTML = `
+            <li class='flex items-center'><i class='fas fa-check text-green-500 mr-2'></i> Premium Quality</li>
+            <li class='flex items-center'><i class='fas fa-check text-green-500 mr-2'></i> Fast Delivery</li>
+            <li class='flex items-center'><i class='fas fa-check text-green-500 mr-2'></i> Warranty Included</li>
+            <li class='flex items-center'><i class='fas fa-check text-green-500 mr-2'></i> 24/7 Support</li>
+        `;
 
         // Reset quantity
         document.getElementById('quantity').value = 1;
@@ -468,52 +402,40 @@ return [
         document.body.style.overflow = 'auto';
     }
 
+    function increaseQuantity() {
+        const quantityInput = document.getElementById('quantity');
+        let newQuantity = parseInt(quantityInput.value) + 1;
+        if (newQuantity <= 10) {
+            quantityInput.value = newQuantity;
+        }
+    }
+
+    function decreaseQuantity() {
+        const quantityInput = document.getElementById('quantity');
+        let newQuantity = parseInt(quantityInput.value) - 1;
+        if (newQuantity >= 1) {
+            quantityInput.value = newQuantity;
+        }
+    }
+
     // Add to Cart
     function addToCart(productId) {
-        // Add your cart logic here
-        alert('Product added to cart!');
+        const quantity = document.getElementById('quantity')?.value || 1;
+        alert(`Product added to cart! Quantity: ${quantity}`);
+        closeQuickView();
     }
 
     // Add to Wishlist
     function addToWishlist(productId) {
-        // Add your wishlist logic here
         alert('Product added to wishlist!');
     }
 
     // Close modal when clicking outside
-    document.getElementById('quickViewModal').addEventListener('click', function(e) {
+    document.getElementById('quickViewModal')?.addEventListener('click', function(e) {
         if (e.target === this) {
             closeQuickView();
         }
     });
-</script>
-@endpush
-</script>
-<script>
-function closeQuickView() {
-document.getElementById('quickViewModal').style.display = 'none';
-document.getElementById('quickViewModal').classList.add('hidden');
-document.body.style.overflow = 'auto';
-}
-
-// Add to Cart
-function addToCart(productId) {
-// Add your cart logic here
-alert('Product added to cart!');
-}
-
-// Add to Wishlist
-function addToWishlist(productId) {
-// Add your wishlist logic here
-alert('Product added to wishlist!');
-}
-
-// Close modal when clicking outside
-document.getElementById('quickViewModal').addEventListener('click', function(e) {
-if (e.target === this) {
-closeQuickView();
-}
-});
 </script>
 
 <!-- Custom CSS for Electronics Section -->
@@ -571,100 +493,4 @@ closeQuickView();
     #quickViewModal .bg-white::-webkit-scrollbar-thumb:hover {
         background: #a0aec0;
     }
-</style>
-@push('scripts')
-<script>
-    // Make productsData available to JS
-    const productsData = @json($productsData);
-
-    let currentProductId = null;
-
-    function openQuickView(productId) {
-        const modal = document.getElementById('quickViewModal');
-        modal.style.display = 'block';
-        modal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-        currentProductId = productId;
-
-        // Find product
-        const product = productsData.find(p => p.id == productId);
-        if (!product) return;
-
-        // Set modal fields
-        document.getElementById('modalMainImage').src = product.image;
-        document.getElementById('modalMainImage').alt = product.name;
-        document.getElementById('modalCategory').textContent = product.category ? product.category.toUpperCase() : 'ELECTRONICS';
-        document.getElementById('modalTitle').textContent = product.name;
-
-        // Rating
-        const ratingDiv = document.getElementById('modalRating');
-        ratingDiv.innerHTML = '';
-        const fullStars = Math.floor(product.rating);
-        const halfStar = product.rating % 1 >= 0.5;
-        for (let i = 0; i < 5; i++) {
-            if (i < fullStars) {
-                ratingDiv.innerHTML += '<i class="fas fa-star text-yellow-400"></i>';
-            } else if (i === fullStars && halfStar) {
-                ratingDiv.innerHTML += '<i class="fas fa-star-half-alt text-yellow-400"></i>';
-            } else {
-                ratingDiv.innerHTML += '<i class="far fa-star text-yellow-400"></i>';
-            }
-        }
-        ratingDiv.innerHTML += `<span class="text-gray-500 ml-2">(${product.rating})</span>`;
-
-        // Price
-        document.getElementById('modalPrice').textContent = 'TK: ' + Number(product.amount).toLocaleString();
-        if (product.original_price && Number(product.original_price) > Number(product.amount)) {
-            document.getElementById('modalOriginalPrice').textContent = 'TK: ' + Number(product.original_price).toLocaleString();
-            document.getElementById('modalDiscount').style.display = '';
-            document.getElementById('modalDiscount').textContent = `Save ${product.discount ? product.discount + '%' : Math.round(100 - (product.amount / product.original_price) * 100) + '%'}`;
-        } else {
-            document.getElementById('modalOriginalPrice').textContent = '';
-            document.getElementById('modalDiscount').style.display = 'none';
-        }
-
-        // Description
-        document.getElementById('modalDescription').textContent = product.description || 'No description available.';
-
-        // Features
-        const featuresList = document.getElementById('modalFeatures');
-        featuresList.innerHTML = '';
-        if (Array.isArray(product.features) && product.features.length > 0) {
-            product.features.forEach(f => {
-                featuresList.innerHTML += `<li class='flex items-center'><i class='fas fa-check text-green-500 mr-2'></i> ${f}</li>`;
-            });
-        } else {
-            featuresList.innerHTML = `<li class='flex items-center'><i class='fas fa-check text-green-500 mr-2'></i> High Quality Content</li><li class='flex items-center'><i class='fas fa-check text-green-500 mr-2'></i> Fast Delivery</li><li class='flex items-center'><i class='fas fa-check text-green-500 mr-2'></i> Money Back Guarantee</li><li class='flex items-center'><i class='fas fa-check text-green-500 mr-2'></i> 24/7 Customer Support</li>`;
-        }
-
-        // Reset quantity
-        document.getElementById('quantity').value = 1;
-    }
-
-    function closeQuickView() {
-        document.getElementById('quickViewModal').style.display = 'none';
-        document.getElementById('quickViewModal').classList.add('hidden');
-        document.body.style.overflow = 'auto';
-    }
-
-    // Add to Cart
-    function addToCart(productId) {
-        // Add your cart logic here
-        alert('Product added to cart!');
-    }
-
-    // Add to Wishlist
-    function addToWishlist(productId) {
-        // Add your wishlist logic here
-        alert('Product added to wishlist!');
-    }
-
-    // Close modal when clicking outside
-    document.getElementById('quickViewModal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeQuickView();
-        }
-    });
-</script>
-
-@endpush
+</style>                        

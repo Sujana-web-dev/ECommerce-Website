@@ -548,30 +548,152 @@
         const modalContent = document.getElementById('modalContent');
         const modalBody = document.getElementById('modalBody');
 
-        // Show modal
+        // Show modal with loading state
         modal.classList.remove('hidden');
         setTimeout(() => {
             modalContent.classList.add('modal-show');
         }, 10);
 
-        // Simulate loading product data (replace with actual AJAX call)
-        setTimeout(() => {
-            modalBody.innerHTML = `
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <img src="/path/to/product/image" class="w-full h-64 object-cover rounded-xl" alt="Product Image">
-                </div>
-                <div class="space-y-4">
-                    <h4 class="text-xl font-bold text-[#1D293D]">Product Name</h4>
-                    <p class="text-gray-600">Product details and description...</p>
-                    <div class="flex items-center gap-4">
-                        <span class="text-2xl font-bold text-green-600">TK: 1,500</span>
-                        <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">In Stock</span>
-                    </div>
-                </div>
+        // Show loading spinner
+        modalBody.innerHTML = `
+            <div class="text-center py-8">
+                <i class="fas fa-spinner fa-spin text-4xl text-gray-400 mb-4"></i>
+                <p class="text-gray-500">Loading product details...</p>
             </div>
         `;
-        }, 500);
+
+        // Fetch actual product data
+        fetch(`/product/details/${productId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const product = data.product;
+                    const imageUrl = product.image || 'https://via.placeholder.com/400x300/f8fafc/64748b?text=No+Image';
+                    
+                    modalBody.innerHTML = `
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Product Image -->
+                            <div class="space-y-4">
+                                <div class="relative rounded-xl overflow-hidden shadow-lg">
+                                    <img src="${imageUrl}" 
+                                         class="w-full h-64 object-cover" 
+                                         alt="${product.name}"
+                                         onerror="this.src='https://via.placeholder.com/400x300/f8fafc/64748b?text=No+Image'">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                                </div>
+                                
+                                <!-- Quick Stats -->
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div class="bg-gray-50 rounded-lg p-3 text-center">
+                                        <div class="text-xs text-gray-500 mb-1">Stock</div>
+                                        <div class="font-bold text-lg ${product.stock <= 0 ? 'text-red-600' : product.stock <= 5 ? 'text-orange-600' : 'text-green-600'}">
+                                            ${product.stock}
+                                        </div>
+                                    </div>
+                                    <div class="bg-gray-50 rounded-lg p-3 text-center">
+                                        <div class="text-xs text-gray-500 mb-1">Category</div>
+                                        <div class="font-semibold text-sm text-[#1D293D] truncate">
+                                            ${product.category}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Product Details -->
+                            <div class="space-y-4">
+                                <div>
+                                    <h4 class="text-xl font-bold text-[#1D293D] mb-2">${product.name}</h4>
+                                    <div class="flex items-center gap-2 mb-3">
+                                        <span class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">
+                                            ID: ${product.id}
+                                        </span>
+                                        <span class="px-3 py-1 ${product.stock <= 0 ? 'bg-red-100 text-red-800' : product.stock <= 5 ? 'bg-orange-100 text-orange-800' : 'bg-green-100 text-green-800'} rounded-full text-xs font-medium">
+                                            ${product.stock <= 0 ? 'Out of Stock' : product.stock <= 5 ? 'Low Stock' : 'In Stock'}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Pricing -->
+                                <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <div class="text-sm text-green-700 font-medium">Current Price</div>
+                                            <div class="text-2xl font-bold text-green-800">TK ${new Intl.NumberFormat().format(product.amount)}</div>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="text-xs text-gray-500">Suggested Retail</div>
+                                            <div class="text-lg text-gray-500 line-through">TK ${new Intl.NumberFormat().format(product.amount * 1.2)}</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Product Details -->
+                                <div class="space-y-3">
+                                    <div>
+                                        <h5 class="font-semibold text-gray-900 mb-2 flex items-center">
+                                            <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                                            Description
+                                        </h5>
+                                        <p class="text-gray-700 text-sm leading-relaxed bg-gray-50 rounded-lg p-3">
+                                            ${product.details || 'No description available for this product.'}
+                                        </p>
+                                    </div>
+
+                                    <!-- Timestamps -->
+                                    <div class="grid grid-cols-2 gap-3 text-xs">
+                                        <div class="bg-blue-50 rounded-lg p-3">
+                                            <div class="text-blue-600 font-medium mb-1">
+                                                <i class="fas fa-calendar-plus mr-1"></i>Created
+                                            </div>
+                                            <div class="text-blue-800">${product.created_at}</div>
+                                        </div>
+                                        <div class="bg-indigo-50 rounded-lg p-3">
+                                            <div class="text-indigo-600 font-medium mb-1">
+                                                <i class="fas fa-calendar-edit mr-1"></i>Updated
+                                            </div>
+                                            <div class="text-indigo-800">${product.updated_at}</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="flex gap-2 pt-4 border-t border-gray-200">
+                                    <a href="/product/edit/${product.id}" 
+                                       class="flex-1 bg-gradient-to-r from-[#1D293D] to-gray-700 text-white py-3 rounded-xl font-medium text-center transition-all hover:from-gray-700 hover:to-[#1D293D] transform hover:scale-105 shadow-lg">
+                                        <i class="fas fa-edit mr-2"></i>Edit Product
+                                    </a>
+                                    <a href="/product/delete/${product.id}" 
+                                       onclick="return confirm('Are you sure you want to delete this product?')"
+                                       class="flex-1 bg-gradient-to-r from-[#ec4642] to-red-600 text-white py-3 rounded-xl font-medium text-center transition-all hover:from-red-600 hover:to-[#ec4642] transform hover:scale-105 shadow-lg">
+                                        <i class="fas fa-trash mr-2"></i>Delete
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    modalBody.innerHTML = `
+                        <div class="text-center py-8">
+                            <i class="fas fa-exclamation-triangle text-4xl text-red-400 mb-4"></i>
+                            <h4 class="text-lg font-semibold text-gray-800 mb-2">Error Loading Product</h4>
+                            <p class="text-gray-500">${data.message || 'Unable to load product details. Please try again.'}</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching product details:', error);
+                modalBody.innerHTML = `
+                    <div class="text-center py-8">
+                        <i class="fas fa-wifi text-4xl text-red-400 mb-4"></i>
+                        <h4 class="text-lg font-semibold text-gray-800 mb-2">Connection Error</h4>
+                        <p class="text-gray-500">Failed to load product details. Please check your internet connection and try again.</p>
+                        <button onclick="quickView(${productId})" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-refresh mr-2"></i>Retry
+                        </button>
+                    </div>
+                `;
+            });
     }
 
     function closeQuickView() {

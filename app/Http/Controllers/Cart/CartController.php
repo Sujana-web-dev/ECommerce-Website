@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\CartService;
 use App\Models\Product;
+use Illuminate\Support\Facades\Log;
 
 class CartController extends Controller
 {
@@ -24,7 +25,7 @@ class CartController extends Controller
         if (request()->expectsJson()) {
             return response()->json([
                 'success' => true,
-                'cart' => $cart,
+                'cart' => $cart->toArray(), // Convert collection to array for JavaScript
                 'cart_count' => $cartCount,
                 'cart_total' => $cartTotal
             ]);
@@ -107,7 +108,7 @@ class CartController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Product added to cart successfully!',
-                'cart' => $cart,
+                'cart' => $cart->toArray(), // Convert collection to array for JavaScript
                 'cart_count' => $cartCount,
                 'product_id' => $request->product_id,
                 'total_in_cart' => $totalInCart,
@@ -143,7 +144,7 @@ class CartController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Cart updated successfully!',
-                'cart' => $cart,
+                'cart' => $cart->toArray(), // Convert collection to array for JavaScript
                 'cart_count' => $cartCount
             ]);
         } catch (\Exception $e) {
@@ -173,7 +174,7 @@ class CartController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Product removed from cart successfully!',
-                'cart' => $cart,
+                'cart' => $cart->toArray(), // Convert collection to array for JavaScript
                 'cart_count' => $cartCount
             ]);
         } catch (\Exception $e) {
@@ -208,13 +209,23 @@ class CartController extends Controller
         try {
             $productIds = $request->get('product_ids', []);
             
-            if (empty($productIds)) {
-                // Get all products on current page if no specific IDs provided
-                $products = Product::whereIn('id', $productIds)->get();
-            } else {
-                // Get specific products
-                $products = Product::whereIn('id', $productIds)->get();
+            // Convert string to array if needed
+            if (is_string($productIds)) {
+                $productIds = explode(',', $productIds);
             }
+            
+            // Filter out empty values and ensure integers
+            $productIds = array_filter(array_map('intval', $productIds));
+            
+            if (empty($productIds)) {
+                return response()->json([
+                    'success' => true,
+                    'stock_status' => []
+                ]);
+            }
+
+            // Get specific products
+            $products = Product::whereIn('id', $productIds)->get();
 
             $stockStatus = [];
             
@@ -237,6 +248,7 @@ class CartController extends Controller
             ]);
 
         } catch (\Exception $e) {
+            Log::error('Stock status error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to get stock status: ' . $e->getMessage()

@@ -1,3 +1,29 @@
+<script>
+    // Global Modal Image Error Prevention
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add null check protection for all modalMainImage references
+        const originalGetElementById = document.getElementById;
+        document.getElementById = function(id) {
+            const element = originalGetElementById.call(this, id);
+            if (id === 'modalMainImage' && !element) {
+                console.warn('modalMainImage element not found, creating placeholder');
+                return {
+                    classList: {
+                        add: () => {},
+                        remove: () => {},
+                        toggle: () => {},
+                        contains: () => false
+                    },
+                    src: '',
+                    alt: '',
+                    style: {}
+                };
+            }
+            return element;
+        };
+    });
+</script>
+
 <!-- Premium JavaScript Libraries -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/js/all.min.js" integrity="sha512-b+nQTCdtTBIRIbraqNEwsjB6UvL3UEMkXnhzd8awtCYh0Kcsjl9uEgwVFVbhoj3uu1DO1ZMacNvLoyJJiNfcvg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -709,7 +735,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (productIds.length > 0) {
             fetch('{{ route("cart.stock-status") }}?' + new URLSearchParams({ 
-                product_ids: productIds 
+                product_ids: productIds.join(',')
             }), {
                 method: 'GET',
                 headers: {
@@ -717,17 +743,25 @@ document.addEventListener('DOMContentLoaded', function() {
                     'Content-Type': 'application/json',
                 }
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success && data.stock_status) {
                     data.stock_status.forEach(item => {
                         updateProductStock(item.product_id, item.remaining_stock, item.total_in_cart);
                     });
                     console.log('Stock status synchronized for all products');
+                } else if (data.message) {
+                    console.warn('Stock sync warning:', data.message);
                 }
             })
             .catch(error => {
-                console.log('Stock sync error:', error);
+                console.warn('Stock sync temporarily unavailable:', error.message);
+                // Don't show errors to users, just log for debugging
             });
         }
     }

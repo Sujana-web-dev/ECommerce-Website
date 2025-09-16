@@ -199,4 +199,130 @@ class FrontendController extends Controller
         
         return view('frontend.single.all_products', compact('pageTitle', 'products'));
     }
+
+    // Search products functionality
+    public function searchProducts(Request $request)
+    {
+        $pageTitle = "Search Results";
+        $query = $request->get('query');
+        
+        if (empty($query)) {
+            return redirect()->route('all.products')->with('error', 'Please enter a search term');
+        }
+        
+        // Define book-related categories for smart search
+        $bookCategories = ['Fiction', 'History', 'Non-Fiction', 'Science', 'Books'];
+        
+        // Search products with intelligent category mapping
+        $products = Product::with('category')
+            ->where(function($q) use ($query, $bookCategories) {
+                // Search in product name
+                $q->where('name', 'LIKE', '%' . $query . '%')
+                  // Search in product details
+                  ->orWhere('details', 'LIKE', '%' . $query . '%')
+                  // Search in category name
+                  ->orWhereHas('category', function($categoryQuery) use ($query) {
+                      $categoryQuery->where('name', 'LIKE', '%' . $query . '%');
+                  });
+                  
+                // Smart search: if searching for "books", also search book-related categories
+                if (strtolower($query) === 'books' || strtolower($query) === 'book') {
+                    $q->orWhereHas('category', function($categoryQuery) use ($bookCategories) {
+                        $categoryQuery->whereIn('name', $bookCategories);
+                    });
+                }
+                
+                // Smart search: if searching for "electronics", include laptops, etc.
+                if (strtolower($query) === 'electronics' || strtolower($query) === 'electronic') {
+                    $q->orWhereHas('category', function($categoryQuery) {
+                        $categoryQuery->whereIn('name', ['Laptops', 'Electronics']);
+                    });
+                }
+                
+                // Smart search: if searching for "fashion", include clothing categories
+                if (strtolower($query) === 'fashion' || strtolower($query) === 'clothing' || strtolower($query) === 'clothes') {
+                    $q->orWhereHas('category', function($categoryQuery) {
+                        $categoryQuery->whereIn('name', ['Women', 'Men', 'Kids']);
+                    });
+                }
+                
+                // Smart search: if searching for "beauty", include makeup
+                if (strtolower($query) === 'beauty' || strtolower($query) === 'cosmetics') {
+                    $q->orWhereHas('category', function($categoryQuery) {
+                        $categoryQuery->whereIn('name', ['Makeup']);
+                    });
+                }
+                
+                // Smart search: if searching for "sports", include related categories
+                if (strtolower($query) === 'sports' || strtolower($query) === 'sport') {
+                    $q->orWhereHas('category', function($categoryQuery) {
+                        $categoryQuery->whereIn('name', ['Football', 'Basketball']);
+                    });
+                }
+                
+                // Smart search: if searching for "home", include related categories
+                if (strtolower($query) === 'home' || strtolower($query) === 'garden') {
+                    $q->orWhereHas('category', function($categoryQuery) {
+                        $categoryQuery->whereIn('name', ['Indoor Plants', 'Garden Tools', 'Home Decor', 'Outdoor', 'Furnitures']);
+                    });
+                }
+            })
+            ->paginate(12)
+            ->appends(['query' => $query]);
+
+        // Calculate available stock for each product
+        $products->getCollection()->transform(function ($product) {
+            $quantityInCart = $this->cartService->getProductQuantityInCart($product->id);
+            $product->available_stock = max(0, $product->stock - $quantityInCart);
+            return $product;
+        });
+        
+        // Count total results for display with same logic
+        $totalResults = Product::where(function($q) use ($query, $bookCategories) {
+            $q->where('name', 'LIKE', '%' . $query . '%')
+              ->orWhere('details', 'LIKE', '%' . $query . '%')
+              ->orWhereHas('category', function($categoryQuery) use ($query) {
+                  $categoryQuery->where('name', 'LIKE', '%' . $query . '%');
+              });
+              
+            // Apply same smart search logic for counting
+            if (strtolower($query) === 'books' || strtolower($query) === 'book') {
+                $q->orWhereHas('category', function($categoryQuery) use ($bookCategories) {
+                    $categoryQuery->whereIn('name', $bookCategories);
+                });
+            }
+            
+            if (strtolower($query) === 'electronics' || strtolower($query) === 'electronic') {
+                $q->orWhereHas('category', function($categoryQuery) {
+                    $categoryQuery->whereIn('name', ['Laptops', 'Electronics']);
+                });
+            }
+            
+            if (strtolower($query) === 'fashion' || strtolower($query) === 'clothing' || strtolower($query) === 'clothes') {
+                $q->orWhereHas('category', function($categoryQuery) {
+                    $categoryQuery->whereIn('name', ['Women', 'Men', 'Kids']);
+                });
+            }
+            
+            if (strtolower($query) === 'beauty' || strtolower($query) === 'cosmetics') {
+                $q->orWhereHas('category', function($categoryQuery) {
+                    $categoryQuery->whereIn('name', ['Makeup']);
+                });
+            }
+            
+            if (strtolower($query) === 'sports' || strtolower($query) === 'sport') {
+                $q->orWhereHas('category', function($categoryQuery) {
+                    $categoryQuery->whereIn('name', ['Football', 'Basketball']);
+                });
+            }
+            
+            if (strtolower($query) === 'home' || strtolower($query) === 'garden') {
+                $q->orWhereHas('category', function($categoryQuery) {
+                    $categoryQuery->whereIn('name', ['Indoor Plants', 'Garden Tools', 'Home Decor', 'Outdoor', 'Furnitures']);
+                });
+            }
+        })->count();
+        
+        return view('frontend.single.search_results', compact('pageTitle', 'products', 'query', 'totalResults'));
+    }
 }

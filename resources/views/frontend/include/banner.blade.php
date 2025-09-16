@@ -37,9 +37,9 @@
                                 <a href="{{ route('all.products') }}" class="bg-luxury-gold hover:bg-yellow-400 text-gray-900 px-8 py-3 rounded-lg font-semibold transition-colors">
                                     Shop Now
                                 </a>
-                                <button class="bg-white/10 text-white px-8 py-3 rounded-lg font-semibold border border-white/20 hover:bg-white/20 transition-colors">
+                                <!-- <button class="bg-white/10 text-white px-8 py-3 rounded-lg font-semibold border border-white/20 hover:bg-white/20 transition-colors">
                                     Learn More
-                                </button>
+                                </button> -->
                             </div>
                         </div>
 
@@ -59,12 +59,9 @@
                                     </div>
                                     <div class="space-y-2">
                                         <h3 class="text-2xl font-bold text-white">Premium Collection</h3>
-                                        <p class="text-gray-300">Quality & Elegance</p>
+                                        
                                     </div>
-                                    <div class="text-3xl font-bold text-luxury-gold">$2,999</div>
-                                    <button class="bg-luxury-gold hover:bg-yellow-400 text-gray-900 px-8 py-3 rounded-lg font-semibold transition-colors">
-                                        Shop Now
-                                    </button>
+                                    
                                 </div>
                             </div>
                         </div>
@@ -92,12 +89,12 @@
                                 Explore our latest summer collection with vibrant colors and comfortable designs.
                             </p>
                             <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                                <a href="{{ route('fashion') }}" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-lg font-semibold transition-colors">
+                                <a href="{{ route('all.products') }}" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-lg font-semibold transition-colors">
                                     Shop Collection
                                 </a>
-                                <button class="bg-white/10 text-white px-8 py-3 rounded-lg font-semibold border border-white/20 hover:bg-white/20 transition-colors">
+                                <!-- <button class="bg-white/10 text-white px-8 py-3 rounded-lg font-semibold border border-white/20 hover:bg-white/20 transition-colors">
                                     View Catalog
-                                </button>
+                                </button> -->
                             </div>
                         </div>
                         <div class="relative">
@@ -114,12 +111,9 @@
                                     </div>
                                     <div class="space-y-2">
                                         <h3 class="text-2xl font-bold text-white">Fashion Forward</h3>
-                                        <p class="text-gray-300">Trendy & Comfortable</p>
+                                        
                                     </div>
-                                    <div class="text-3xl font-bold text-blue-400">From $49</div>
-                                    <button class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-lg font-semibold transition-colors">
-                                        Explore
-                                    </button>
+                                    
                                 </div>
                             </div>
                         </div>
@@ -151,9 +145,9 @@
                                 <a href="{{ route('all.products') }}" class="bg-green-600 hover:bg-green-500 text-white px-8 py-3 rounded-lg font-semibold transition-colors">
                                     Shop Sale
                                 </a>
-                                <button class="bg-white/10 text-white px-8 py-3 rounded-lg font-semibold border border-white/20 hover:bg-white/20 transition-colors">
+                                <!-- <button class="bg-white/10 text-white px-8 py-3 rounded-lg font-semibold border border-white/20 hover:bg-white/20 transition-colors">
                                     Learn More
-                                </button>
+                                </button> -->
                             </div>
                         </div>
                         <div class="relative">
@@ -170,15 +164,9 @@
                                     </div>
                                     <div class="space-y-2">
                                         <h3 class="text-2xl font-bold text-white">Electronics Deal</h3>
-                                        <p class="text-gray-300">Limited Time Only</p>
+                                        
                                     </div>
-                                    <div class="flex items-center justify-center space-x-2">
-                                        <span class="text-2xl font-bold text-green-400">$299</span>
-                                        <span class="text-lg text-gray-400 line-through">$599</span>
-                                    </div>
-                                    <button class="bg-red-600 hover:bg-red-500 text-white px-8 py-3 rounded-lg font-semibold transition-colors">
-                                        Buy Now
-                                    </button>
+                                    
                                 </div>
                             </div>
                         </div>

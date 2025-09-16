@@ -90,6 +90,9 @@ Route::get('/card-section', [App\Http\Controllers\FrontendController::class, 'ca
 // All products
 Route::get('/all-products', [App\Http\Controllers\FrontendController::class, 'allProducts'])->name('all.products');
 
+// Search products
+Route::get('/search', [App\Http\Controllers\FrontendController::class, 'searchProducts'])->name('products.search');
+
 
 //Backend Part
 
@@ -103,6 +106,7 @@ Route::post('/product/create', [ProductController::class, 'create'])->name('prod
 Route::get('/product/edit/{id}', [ProductController::class, 'editForm'])->name('product.edit');
 Route::post('/product/edit/post', [ProductController::class, 'editPost'])->name('product.edit.post');
 Route::get('/product/delete/{id}', [ProductController::class, 'delete'])->name('product.delete');
+Route::get('/product/details/{id}', [ProductController::class, 'getProductDetails'])->name('product.details');
 
 
 
