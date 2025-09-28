@@ -48,20 +48,13 @@
 
         <p class="mt-4 text-sm text-gray-500 text-center">
             Don't have an account? 
-            <a href="#" id="openSignupModal" class="text-[#5a4bff] hover:underline">Sign Up</a>
+            <a href="{{ route('register') }}" class="text-[#5a4bff] hover:underline">Sign Up</a>
         </p>
     </div>
 </div>
 
-<!-- Optional: Include JS to trigger signup modal like your header -->
+<!-- Login password toggle functionality -->
 <script>
-document.getElementById('openSignupModal')?.addEventListener('click', function(e) {
-    e.preventDefault();
-    document.getElementById('loginModal')?.classList.add('hidden');
-    document.getElementById('signupModal')?.classList.remove('hidden');
-});
-
-// Login password toggle functionality
 document.addEventListener('DOMContentLoaded', function() {
     const toggleLoginPassword = document.getElementById('toggleLoginPassword');
     const loginPasswordField = document.getElementById('loginPassword');

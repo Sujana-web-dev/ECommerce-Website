@@ -136,7 +136,7 @@
                                 Limited Offer
                             </div>
                             <h1 class="text-5xl lg:text-7xl font-bold text-white leading-tight mb-6">
-                                Up to <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-400">50% OFF</span>
+                                Up to <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-400">20% OFF</span>
                             </h1>
                             <p class="text-xl text-gray-200 mb-8 max-w-2xl">
                                 Don't miss our biggest sale of the year. Premium products at unbeatable prices.

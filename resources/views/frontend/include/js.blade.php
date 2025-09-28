@@ -43,19 +43,6 @@
         });
     });
 
-    // Loading Screen
-    window.addEventListener('load', function() {
-        const loadingScreen = document.getElementById('loading-screen');
-        if (loadingScreen) {
-            setTimeout(() => {
-                loadingScreen.style.opacity = '0';
-                setTimeout(() => {
-                    loadingScreen.style.display = 'none';
-                }, 500);
-            }, 1000);
-        }
-    });
-
     // Premium Modal Controls
     function showModal(modalId) {
         const modal = document.getElementById(modalId);

@@ -94,7 +94,7 @@
                                     Summer Sale
                                 </h3>
                                 <div class="text-5xl lg:text-6xl font-bold text-luxury-gold font-serif">
-                                    UP TO 70%
+                                    UP TO 20%
                                 </div>
                                 <p class="text-gray-200">
                                     Don't miss out on incredible savings
@@ -116,7 +116,7 @@
                         <i class="fas fa-shipping-fast text-2xl text-primary-600"></i>
                     </div>
                     <h4 class="font-semibold text-gray-900 mb-2 group-hover:text-primary-600 transition-colors">Free Shipping</h4>
-                    <p class="text-gray-600 text-sm">On orders over $100 worldwide</p>
+                    <p class="text-gray-600 text-sm">On orders over worldwide</p>
                 </a>
                 
                 <a href="{{ route('contact') }}" class="text-center group cursor-pointer card-interactive hover:bg-gray-50 p-6 rounded-xl transition-all duration-300">

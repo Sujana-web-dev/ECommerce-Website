@@ -25,7 +25,7 @@ class CartController extends Controller
         if (request()->expectsJson()) {
             return response()->json([
                 'success' => true,
-                'cart' => $cart->toArray(), // Convert collection to array for JavaScript
+                'cart' => array_values($cart->toArray()), // Ensure indexed array for JavaScript
                 'cart_count' => $cartCount,
                 'cart_total' => $cartTotal
             ]);
@@ -100,15 +100,25 @@ class CartController extends Controller
             $cart = $this->cartService->get();
             $cartCount = $this->cartService->count();
             
+            // Debug: Log the cart structure
+            Log::info('Cart structure in add method:', [
+                'cart_type' => get_class($cart),
+                'cart_data' => $cart->toArray(),
+                'count' => $cartCount
+            ]);
+            
             // Get updated product information for stock display
             $updatedProduct = Product::find($request->product_id);
             $totalInCart = $this->cartService->getProductQuantityInCart($request->product_id);
             $remainingStock = max(0, $updatedProduct->stock - $totalInCart);
 
+            // Ensure proper array structure for JavaScript
+            $cartArray = $cart->toArray();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Product added to cart successfully!',
-                'cart' => $cart->toArray(), // Convert collection to array for JavaScript
+                'cart' => array_values($cartArray), // Ensure indexed array for JavaScript
                 'cart_count' => $cartCount,
                 'product_id' => $request->product_id,
                 'total_in_cart' => $totalInCart,

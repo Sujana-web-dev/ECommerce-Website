@@ -97,8 +97,14 @@ return [
 
                 <!-- Floating Action Buttons with Animations -->
                 <div class="absolute top-4 right-4 flex flex-col space-y-3">
-                    <button onclick="addToWishlist('{{ $product->id }}')" class="w-12 h-12 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center text-gray-600 hover:text-red-500 hover:bg-white transition-all shadow-xl transform hover:scale-125 hover:rotate-12 duration-300 border-2 border-transparent hover:border-red-200" title="Add to Wishlist">
-                        <i class="far fa-heart text-lg"></i>
+                    <button onclick="addToWishlist('{{ $product->id }}', {
+                        id: '{{ $product->id }}',
+                        name: '{{ addslashes($product->name) }}',
+                        image: '{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/400x300/f8fafc/64748b?text=No+Image' }}',
+                        price: 'TK {{ number_format($product->amount, 2) }}',
+                        category: '{{ $product->category->name ?? 'Electronics' }}'
+                    })" class="w-12 h-12 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center text-gray-600 hover:text-red-500 hover:bg-white transition-all shadow-xl transform hover:scale-125 hover:rotate-12 duration-300 border-2 border-transparent hover:border-red-200 wishlist-btn" title="Add to Wishlist" data-product-id="{{ $product->id }}">
+                        <i class="far fa-heart text-lg wishlist-icon"></i>
                     </button>
                     <button onclick="openQuickView('{{ $product->id }}')" class="w-12 h-12 bg-gradient-to-br from-[#1D293D] to-[#243447] text-white rounded-full flex items-center justify-center hover:from-[#243447] hover:to-[#2a3f57] transition-all shadow-xl transform hover:scale-125 hover:rotate-12 duration-300" title="Quick View">
                         <i class="fas fa-eye text-lg"></i>
@@ -149,9 +155,7 @@ return [
                         <div class="flex items-baseline justify-between">
                             <div class="flex items-baseline space-x-3">
                                 <span class=" text-xl font-black text-[#1D293D]">TK {{ number_format($product->amount ?? 0) }}</span>
-                                @if($product->original_price)
-                                <span class="text-gray-400 line-through text-lg">TK {{ number_format($product->original_price) }}</span>
-                                @endif
+                                <span class="text-gray-400 line-through text-lg">TK {{ number_format($product->amount * 1.2) }}</span>
                             </div>
                             <div class="text-right">
                                 <span class="text-green-600 text-sm font-semibold">Save 20%</span>
@@ -273,7 +277,7 @@ return [
                             </div>
                         </div>
                         <div class="space-y-3">
-                            <button id="modalAddToCartBtn" onclick="addToCart(currentProductId)" class="w-full bg-gradient-to-r from-[#1D293D] to-[#243447] text-white py-3 rounded-xl font-bold text-lg hover:from-[#ec4642] hover:to-[#d63031] transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 duration-300">
+                            <button id="modalAddToCartBtn" onclick="addToCartFromModal(currentProductId)" class="w-full bg-gradient-to-r from-[#1D293D] to-[#243447] text-white py-3 rounded-xl font-bold text-lg hover:from-[#ec4642] hover:to-[#d63031] transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 duration-300">
                                 <i class="fas fa-shopping-cart mr-2"></i>Add to Cart
                             </button>
                             <button id="modalAddToWishlistBtn" onclick="addToWishlist(currentProductId)" class="w-full border-2 border-gray-300 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all duration-300">
@@ -305,7 +309,7 @@ return [
         // Update tab styles
         tabs.forEach(tab => {
             if (tab.id === `tab-${category}`) {
-                tab.className = 'px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold transition-all shadow-md';
+                tab.className = 'px-6 py-3 bg-[#1D293D] text-white rounded-xl font-semibold transition-all hover:bg-[#243447] shadow-md';
             } else {
                 tab.className = 'px-6 py-3 text-gray-600 rounded-xl font-medium hover:bg-white/50 transition-all';
             }
@@ -418,16 +422,25 @@ return [
         }
     }
 
-    // Add to Cart
-    function addToCart(productId) {
-        const quantity = document.getElementById('quantity')?.value || 1;
-        alert(`Product added to cart! Quantity: ${quantity}`);
-        closeQuickView();
-    }
-
-    // Add to Wishlist
-    function addToWishlist(productId) {
-        alert('Product added to wishlist!');
+    // Add to Cart from Modal
+    function addToCartFromModal(productId, quantity = null) {
+        // If quantity is not provided, try to get it from quantity input (for modal) or default to 1
+        if (quantity === null) {
+            const quantityInput = document.getElementById('quantity');
+            quantity = quantityInput ? parseInt(quantityInput.value) : 1;
+        }
+        
+        console.log('Adding to cart from modal:', { productId, quantity });
+        
+        // Call the global addToCart function from header.blade.php
+        if (typeof window.addToCart === 'function') {
+            window.addToCart(productId, quantity);
+            if (document.getElementById('quickViewModal').style.display !== 'none') {
+                closeQuickView();
+            }
+        } else {
+            console.error('Global addToCart function not found');
+        }
     }
 
     // Close modal when clicking outside
@@ -435,6 +448,71 @@ return [
         if (e.target === this) {
             closeQuickView();
         }
+    });
+
+    // Enhanced wishlist functionality for electronics page
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add event listeners for Add to Cart buttons
+        const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
+        addToCartButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const productId = this.getAttribute('data-product-id');
+                const quantity = 1; // Default quantity for product card clicks
+                
+                console.log('Product card add to cart clicked:', { productId, quantity });
+                
+                if (productId) {
+                    // Call the global addToCart function from header.blade.php
+                    if (typeof window.addToCart === 'function') {
+                        window.addToCart(productId, quantity);
+                    } else {
+                        console.error('Global addToCart function not found');
+                        // Fallback: show an alert
+                        alert('Cart functionality is not available. Please refresh the page.');
+                    }
+                } else {
+                    console.error('Product ID not found on button');
+                }
+            });
+        });
+        
+        // Update wishlist button states on page load
+        function updateWishlistButtonStates() {
+            const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+            const wishlistButtons = document.querySelectorAll('.wishlist-btn');
+            
+            wishlistButtons.forEach(button => {
+                const productId = button.getAttribute('data-product-id');
+                const isInWishlist = wishlist.some(item => item.id == productId);
+                const icon = button.querySelector('.wishlist-icon');
+                
+                if (isInWishlist) {
+                    button.classList.add('added');
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                    button.title = 'Remove from Wishlist';
+                } else {
+                    button.classList.remove('added');
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+                    button.title = 'Add to Wishlist';
+                }
+            });
+        }
+
+        // Update button states on initial load
+        updateWishlistButtonStates();
+
+        // Listen for wishlist updates
+        window.addEventListener('storage', updateWishlistButtonStates);
+        
+        // Also update when the page regains focus (for same-tab updates)
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                updateWishlistButtonStates();
+            }
+        });
     });
 </script>
 
@@ -492,5 +570,50 @@ return [
 
     #quickViewModal .bg-white::-webkit-scrollbar-thumb:hover {
         background: #a0aec0;
+    }
+
+    /* Enhanced Wishlist Button Styles */
+    .wishlist-btn:hover .wishlist-icon {
+        animation: heartBeat 0.6s ease-in-out;
+    }
+
+    @keyframes heartBeat {
+        0%, 100% {
+            transform: scale(1);
+        }
+        25% {
+            transform: scale(1.2);
+        }
+        50% {
+            transform: scale(1.1);
+        }
+        75% {
+            transform: scale(1.25);
+        }
+    }
+
+    /* Wishlist Added State */
+    .wishlist-btn.added {
+        background: linear-gradient(45deg, #ef4444, #f43f5e) !important;
+        color: white !important;
+        border-color: #f43f5e !important;
+    }
+
+    .wishlist-btn.added .wishlist-icon {
+        color: white !important;
+    }
+
+    /* Pulse animation for wishlist count */
+    @keyframes wishlistPulse {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.1);
+        }
+    }
+
+    .animate-wishlist-pulse {
+        animation: wishlistPulse 0.5s ease-in-out;
     }
 </style>                        

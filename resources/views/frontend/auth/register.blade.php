@@ -1,44 +1,7 @@
 @extends('frontend.layouts.app')
 
 @section('content')
-<div class="container mx-auto px-4 py-12 min-h-[400px] flex justify-center items        });
-    });
-
-    // Password toggle functionality
-    const togglePassword = document.getElementById('togglePassword');
-    const passwordField = document.getElementById('password');
-    const eyeIcon = document.getElementById('eyeIcon');
-
-    togglePassword.addEventListener('click', function() {
-        if (passwordField.type === 'password') {
-            passwordField.type = 'text';
-            eyeIcon.classList.remove('fa-eye');
-            eyeIcon.classList.add('fa-eye-slash');
-        } else {
-            passwordField.type = 'password';
-            eyeIcon.classList.remove('fa-eye-slash');
-            eyeIcon.classList.add('fa-eye');
-        }
-    });
-
-    // Confirm password toggle functionality
-    const togglePasswordConfirm = document.getElementById('togglePasswordConfirm');
-    const passwordConfirmField = document.getElementById('password_confirmation');
-    const eyeIconConfirm = document.getElementById('eyeIconConfirm');
-
-    togglePasswordConfirm.addEventListener('click', function() {
-        if (passwordConfirmField.type === 'password') {
-            passwordConfirmField.type = 'text';
-            eyeIconConfirm.classList.remove('fa-eye');
-            eyeIconConfirm.classList.add('fa-eye-slash');
-        } else {
-            passwordConfirmField.type = 'password';
-            eyeIconConfirm.classList.remove('fa-eye-slash');
-            eyeIconConfirm.classList.add('fa-eye');
-        }
-    });
-});
-</script>ter">
+<div class="container mx-auto px-4 py-12 min-h-[400px] flex justify-center items-center">
     <div class="max-w-md w-full bg-white shadow-lg rounded-xl p-6">
         <h1 class="text-2xl font-bold text-center mb-6">Create an Account</h1>
 
@@ -60,18 +23,22 @@
             @csrf
             <div>
                 <label class="block text-gray-700 font-semibold mb-1">Full Name</label>
-                <input type="text" name="name" class="w-full border rounded px-4 py-2" value="{{ old('name') }}" required>
+                <input type="text" name="name" class="w-full border rounded px-4 py-2" value="{{ old('name') }}" autocomplete="name" required>
+            </div>
+            <div>
+                <label class="block text-gray-700 font-semibold mb-1">Username</label>
+                <input type="text" name="username" class="w-full border rounded px-4 py-2" value="{{ old('username') }}" autocomplete="username" required>
             </div>
             <div>
                 <label class="block text-gray-700 font-semibold mb-1">Email</label>
-                <input type="email" name="email" class="w-full border rounded px-4 py-2" value="{{ old('email') }}" required>
+                <input type="email" name="email" class="w-full border rounded px-4 py-2" value="{{ old('email') }}" autocomplete="email" required>
             </div>
             <div>
                 <label class="block text-gray-700 font-semibold mb-1">Password</label>
                 <div class="relative">
-                    <input type="password" name="password" id="password" class="w-full border rounded px-4 py-2 pr-12" required>
-                    <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700">
-                        <i id="eyeIcon" class="fas fa-eye"></i>
+                    <input type="password" name="password" id="register-password" class="w-full border rounded px-4 py-2 pr-12" autocomplete="new-password" required>
+                    <button type="button" id="toggleRegisterPassword" class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700">
+                        <i id="registerEyeIcon" class="fas fa-eye"></i>
                     </button>
                 </div>
                 <div class="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
@@ -89,9 +56,9 @@
             <div>
                 <label class="block text-gray-700 font-semibold mb-1">Confirm Password</label>
                 <div class="relative">
-                    <input type="password" name="password_confirmation" id="password_confirmation" class="w-full border rounded px-4 py-2 pr-12" required>
-                    <button type="button" id="togglePasswordConfirm" class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700">
-                        <i id="eyeIconConfirm" class="fas fa-eye"></i>
+                    <input type="password" name="password_confirmation" id="register-password-confirmation" class="w-full border rounded px-4 py-2 pr-12" autocomplete="new-password" required>
+                    <button type="button" id="toggleRegisterPasswordConfirm" class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700">
+                        <i id="registerEyeIconConfirm" class="fas fa-eye"></i>
                     </button>
                 </div>
             </div>
@@ -102,14 +69,14 @@
 
         <p class="mt-4 text-sm text-gray-500 text-center">
             Already have an account? 
-            <a href="#" id="openLoginModal" class="text-[#5a4bff] hover:underline">Log in</a>
+            <a href="{{ route('login') }}" class="text-[#5a4bff] hover:underline">Log in</a>
         </p>
     </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const passwordInput = document.getElementById('password');
+    const passwordInput = document.getElementById('register-password');
     const lengthCheck = document.getElementById('length-check');
     const uppercaseCheck = document.getElementById('uppercase-check');
     const lowercaseCheck = document.getElementById('lowercase-check');
@@ -175,13 +142,41 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
-</script>
 
-<script>
-document.getElementById('openLoginModal')?.addEventListener('click', function(e) {
-    e.preventDefault();
-    document.getElementById('signupModal')?.classList.add('hidden');
-    document.getElementById('loginModal')?.classList.remove('hidden');
+// Password toggle functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const togglePassword = document.getElementById('toggleRegisterPassword');
+    const passwordField = document.getElementById('register-password');
+    const eyeIcon = document.getElementById('registerEyeIcon');
+
+    togglePassword.addEventListener('click', function() {
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            eyeIcon.classList.remove('fa-eye');
+            eyeIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordField.type = 'password';
+            eyeIcon.classList.remove('fa-eye-slash');
+            eyeIcon.classList.add('fa-eye');
+        }
+    });
+
+    // Confirm password toggle functionality
+    const togglePasswordConfirm = document.getElementById('toggleRegisterPasswordConfirm');
+    const passwordConfirmField = document.getElementById('register-password-confirmation');
+    const eyeIconConfirm = document.getElementById('registerEyeIconConfirm');
+
+    togglePasswordConfirm.addEventListener('click', function() {
+        if (passwordConfirmField.type === 'password') {
+            passwordConfirmField.type = 'text';
+            eyeIconConfirm.classList.remove('fa-eye');
+            eyeIconConfirm.classList.add('fa-eye-slash');
+        } else {
+            passwordConfirmField.type = 'password';
+            eyeIconConfirm.classList.remove('fa-eye-slash');
+            eyeIconConfirm.classList.add('fa-eye');
+        }
+    });
 });
 </script>
 @endsection

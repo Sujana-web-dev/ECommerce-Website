@@ -30,11 +30,6 @@ Route::get('/login', function () {
     return view('frontend.auth.login', compact('pageTitle'));
 })->name('login');
 
-Route::post('/logout', function () {
-    Auth::logout();
-    return redirect('/')->with('success', 'You have been logged out.');
-})->name('logout');
-
 Route::post('/login', [LoginController::class, 'authenticate']);
 Route::post('/logout', [LoginController::class, 'signOut'])->name('logout');
 

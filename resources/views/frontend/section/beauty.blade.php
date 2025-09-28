@@ -135,9 +135,7 @@
                                 <div class="flex items-baseline justify-between">
                                     <div class="flex items-baseline space-x-3">
                                         <span class=" text-xl font-black text-[#1D293D]">TK {{ number_format($product->amount ?? 0) }}</span>
-                                        @if($product->original_price)
-                                        <span class="text-gray-400 line-through text-lg">TK {{ number_format($product->original_price) }}</span>
-                                        @endif
+                                        <span class="text-gray-400 line-through text-lg">TK {{ number_format($product->amount * 1.2) }}</span>
                                     </div>
                                     <div class="text-right">
                                         <span class="text-green-600 text-sm font-semibold">Save 20%</span>

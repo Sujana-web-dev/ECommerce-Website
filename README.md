@@ -6,60 +6,95 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+# ECommerce Website (Laravel)
 
-## About Laravel
+This repository contains the ECommerce Website project built with Laravel. The following quick-start guide covers setup and common commands tailored for Windows (cmd.exe).
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Prerequisites
+- PHP 8.x or compatible
+- Composer (https://getcomposer.org)
+- Node.js and npm (https://nodejs.org)
+- SQLite (optional - repository includes `database/database.sqlite`)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+If you prefer MySQL/Postgres, update the `.env` database settings accordingly.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Quick setup (Windows - cmd.exe)
+Open a Windows `cmd.exe` at the repository root (`c:\Users\SUJANA\OneDrive\Desktop\Ecommerce_Website`) and run:
 
-## Learning Laravel
+1. Install PHP dependencies with Composer:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+```
+composer install
+```
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+2. Copy environment file and generate application key:
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```
+copy .env.example .env
+php artisan key:generate
+```
 
-## Laravel Sponsors
+3. (Optional) If you want to use SQLite and don't have the DB file, create it:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```
+if not exist database\database.sqlite type nul > database\database.sqlite
+```
 
-### Premium Partners
+4. Configure `.env` for your database. For SQLite, set:
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+```
+DB_CONNECTION=sqlite
+DB_DATABASE=database/database.sqlite
+```
 
-## Contributing
+5. Run migrations and seeders (creates schema and sample data):
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```
+php artisan migrate --seed
+```
 
-## Code of Conduct
+6. Install frontend dependencies and build assets:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```
+npm install
+npm run dev   (for development)
+npm run build (for production build)
+```
 
-## Security Vulnerabilities
+7. Serve the application locally:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```
+php artisan serve
+```
 
-## License
+Open your browser at the URL shown (usually `http://127.0.0.1:8000`).
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-=======
-# ECommerce-Website
->>>>>>> 7ec4cb5739681a7b53c9006326f90ead8d9d6483
+## Running tests
+Use Laravel's test runner:
+
+```
+php artisan test
+```
+
+Or (alternative) run PHPUnit directly:
+
+```
+vendor\bin\phpunit
+```
+
+## Common troubleshooting
+- If `composer install` fails, ensure your PHP CLI meets the required extensions (PDO, mbstring, BCMath, OpenSSL, tokenizer, xml).
+- If migrations fail, verify database settings in `.env` and that the database file exists (for SQLite) or database credentials are correct (MySQL/Postgres).
+- On Windows path issues, prefer using full paths or PowerShell where appropriate.
+
+## Project artifacts added by this work
+- `diagrams/Activity_ECommerce.drawio` — activity diagrams for key flows (Login, Manage Product, Search Product, Cart & Checkout, View Order, Report Generation).
+- `generated/PROJECT_DELIVERABLES.md` — consolidated project deliverable (SRS summary, function point analysis, schedule, run instructions).
+
+If you'd like, I can also:
+- export diagrams to PNG/PDF into `diagrams/exports/` for submission,
+- add `generated/DIAGRAMS_NOTES.md` describing each diagram and how to open/export it.
+
+---
+
+If you want me to proceed with exporting diagrams or creating the diagrams notes, tell me and I'll continue.

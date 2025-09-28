@@ -1,7 +1,10 @@
 <!-- Modern Sports Section -->
 <section class="relative overflow-hidden">
     <!-- Premium Overlay -->
-    <div class="absolute inset-0 bg-gradient-to-br from-[#1D293D]/80 via-[#1D293D]/60 to-[#ec4642]/70"></div>
+    <div class="absolute                                     <div class=" flex items-baseline space-x-3">
+        <span class=" text-xl font-black text-[#1D293D]">TK {{ number_format($product->amount ?? 0) }}</span>
+        <span class="text-gray-400 line-through text-lg">TK {{ number_format($product->amount * 1.2) }}</span>
+    </div>0 bg-gradient-to-br from-[#1D293D]/80 via-[#1D293D]/60 to-[#ec4642]/70"></div>
 
     <!-- Header Content -->
     <div class="relative z-20 py-16 px-6 text-center">
@@ -58,155 +61,155 @@
 
                         <!-- Out of Stock Overlay -->
                         @if($product->available_stock <= 0)
-                        <div class="absolute inset-0 bg-black/70 flex items-center justify-center z-10">
+                            <div class="absolute inset-0 bg-black/70 flex items-center justify-center z-10">
                             <div class="text-center">
                                 <div class="bg-red-600 text-white px-6 py-3 rounded-lg font-bold text-lg shadow-lg mb-2">
                                     <i class="fas fa-times-circle mr-2"></i>OUT OF STOCK
                                 </div>
                                 <p class="text-white text-sm">This item is currently unavailable</p>
                             </div>
-                        </div>
-                        @endif
-
-                        <!-- Low Stock Badge -->
-                        @if($product->available_stock > 0 && $product->available_stock <= 5)
-                        <div class="absolute top-4 left-4">
-                            <span class="bg-orange-500 text-white px-3 py-1 text-xs font-bold rounded-full shadow-lg animate-pulse">
-                                <i class="fas fa-exclamation-triangle mr-1"></i>Only {{ $product->available_stock }} left
-                            </span>
-                        </div>
-                        @endif
-
-                        <!-- Floating Action Buttons with Animations -->
-                        <div class="absolute top-4 right-4 flex flex-col space-y-3">
-                            <button onclick="addToWishlist('{{ $product->id }}')" class="w-12 h-12 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center text-gray-600 hover:text-red-500 hover:bg-white transition-all shadow-xl transform hover:scale-125 hover:rotate-12 duration-300 border-2 border-transparent hover:border-red-200" title="Add to Wishlist">
-                                <i class="far fa-heart text-lg"></i>
-                            </button>
-                            <button onclick="openQuickView('{{ $product->id }}')" class="w-12 h-12 bg-gradient-to-br from-[#1D293D] to-[#243447] text-white rounded-full flex items-center justify-center hover:from-[#243447] hover:to-[#2a3f57] transition-all shadow-xl transform hover:scale-125 hover:rotate-12 duration-300" title="Quick View">
-                                <i class="fas fa-eye text-lg"></i>
-                            </button>
-                        </div>
-
-                        <!-- Enhanced Discount Badge -->
-                        @if($product->discount)
-                        <div class="absolute top-4 left-4">
-                            <div class="relative">
-                                <span class="bg-gradient-to-r from-red-500 via-pink-500 to-red-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-2xl animate-bounce">
-                                    🔥 {{ $product->discount }}% OFF
-                                </span>
-                                <div class="absolute inset-0 bg-red-400 rounded-full blur opacity-40 animate-ping"></div>
-                            </div>
-                        </div>
-                        @endif
-
-                        <!-- New Arrival Badge -->
-                        <div class="absolute bottom-4 left-4">
-                            <span class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
-                                ✨ NEW
-                            </span>
-                        </div>
                     </div>
+                    @endif
 
-                    <!-- Content Section with Enhanced Typography -->
-                    <div class="p-6 flex-1 flex flex-col justify-between relative">
-                        <!-- Decorative Element -->
-                        <div class="absolute top-0 left-6 w-12 h-1 bg-gradient-to-r from-[#1D293D] to-purple-600 rounded-full transform -translate-y-1"></div>
+                    <!-- Low Stock Badge -->
+                    @if($product->available_stock > 0 && $product->available_stock <= 5)
+                        <div class="absolute top-4 left-4">
+                        <span class="bg-orange-500 text-white px-3 py-1 text-xs font-bold rounded-full shadow-lg animate-pulse">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>Only {{ $product->available_stock }} left
+                        </span>
+                </div>
+                @endif
 
-                        <div>
-                            <div>
-                                <h3 class="text-xl font-bold text-gray-900 group-hover:text-[#1D293D] transition-colors duration-300 line-clamp-2 leading-tight mb-2">
-                                    {{ $product->name }}
-                                </h3>
-                                <!-- Rating Stars -->
-                                <div class="flex items-center space-x-1 mb-2">
-                                    @for($i = 1; $i <= 5; $i++)
-                                        <i class="fas fa-star text-yellow-400 text-[10px]"></i>
-                                        @endfor
-                                        <span class="text-gray-500 text-sm ml-2">(4.8)</span>
-                                </div>
-                            </div>
+                <!-- Floating Action Buttons with Animations -->
+                <div class="absolute top-4 right-4 flex flex-col space-y-3">
+                    <button onclick="addToWishlist('{{ $product->id }}')" class="w-12 h-12 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center text-gray-600 hover:text-red-500 hover:bg-white transition-all shadow-xl transform hover:scale-125 hover:rotate-12 duration-300 border-2 border-transparent hover:border-red-200" title="Add to Wishlist">
+                        <i class="far fa-heart text-lg"></i>
+                    </button>
+                    <button onclick="openQuickView('{{ $product->id }}')" class="w-12 h-12 bg-gradient-to-br from-[#1D293D] to-[#243447] text-white rounded-full flex items-center justify-center hover:from-[#243447] hover:to-[#2a3f57] transition-all shadow-xl transform hover:scale-125 hover:rotate-12 duration-300" title="Quick View">
+                        <i class="fas fa-eye text-lg"></i>
+                    </button>
+                </div>
 
-                            <!-- Enhanced Price Section -->
-                            <div class="mb-3">
-                                <div class="flex items-baseline justify-between">
-                                    <div class="flex items-baseline space-x-3">
-                                        <span class=" text-xl font-black text-[#1D293D]">TK{{ number_format($product->amount ?? 0) }}</span>
-                                        @if($product->original_price)
-                                        <span class="text-gray-400 line-through text-lg">TK{{ number_format($product->original_price) }}</span>
-                                        @endif
-                                    </div>
-                                    <div class="text-right">
-                                        <span class="text-green-600 text-sm font-semibold">Save 20%</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Enhanced CTA Button -->
-                        @if($product->available_stock > 0)
-                        <button class="add-to-cart-btn relative w-full bg-gradient-to-r from-[#1D293D] to-[#2a3f57] text-white py-3 rounded-2xl font-bold text-lg hover:from-[#ec4642] hover:to-[#c0392b] transition-all group/btn"
-                                data-product-id="{{ $product->id }}" 
-                                data-product-name="{{ $product->name }}" 
-                                data-product-price="{{ $product->amount }}"
-                                data-product-stock="{{ $product->available_stock }}">
-
-                            <!-- Button Content -->
-                            <span class="relative flex items-center justify-center space-x-3">
-                                <i class="fas fa-shopping-cart text-lg transform group-hover/btn:scale-110 transition-transform duration-300"></i>
-                                <span class="transform group-hover/btn:scale-105 transition-transform duration-300">Add to Cart</span>
-                                <i class="fas fa-arrow-right transform translate-x-0 group-hover/btn:translate-x-1 transition-transform duration-300"></i>
-                            </span>
-
-                            <!-- Shimmer Effect -->
-                            <div class="absolute inset-0 -top-full bg-gradient-to-b from-transparent via-white/20 to-transparent transform rotate-12 group-hover/btn:animate-shimmer"></div>
-                        </button>
-                        <div class="mt-2 text-center">
-                            <div class="bg-green-50 px-3 py-1 rounded-full inline-block">
-                                <span class="text-sm text-green-700 font-semibold">
-                                    <i class="fas fa-check-circle mr-1"></i>Stock: {{ $product->stock }}
-                                </span>
-                            </div>
-                        </div>
-                        @else
-                        <button disabled class="relative w-full bg-gray-400 text-gray-700 py-3 rounded-2xl font-bold text-lg cursor-not-allowed opacity-60 pointer-events-none border-2 border-gray-300">
-                            <span class="relative flex items-center justify-center space-x-3">
-                                <i class="fas fa-ban text-lg"></i>
-                                <span>Out of Stock</span>
-                            </span>
-                            <!-- Strikethrough effect -->
-                            <div class="absolute inset-0 flex items-center justify-center">
-                                <div class="w-3/4 h-0.5 bg-red-500 transform rotate-12 opacity-50"></div>
-                            </div>
-                        </button>
-                        <div class="mt-2 text-center">
-                            <div class="bg-red-50 px-3 py-1 rounded-full inline-block">
-                                <span class="text-sm text-red-600 font-bold">
-                                    <i class="fas fa-times-circle mr-1"></i>Out of Stock
-                                </span>
-                            </div>
-                        </div>
-                        @endif
+                <!-- Enhanced Discount Badge -->
+                @if($product->discount)
+                <div class="absolute top-4 left-4">
+                    <div class="relative">
+                        <span class="bg-gradient-to-r from-red-500 via-pink-500 to-red-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-2xl animate-bounce">
+                            🔥 {{ $product->discount }}% OFF
+                        </span>
+                        <div class="absolute inset-0 bg-red-400 rounded-full blur opacity-40 animate-ping"></div>
                     </div>
+                </div>
+                @endif
+
+                <!-- New Arrival Badge -->
+                <div class="absolute bottom-4 left-4">
+                    <span class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
+                        ✨ NEW
+                    </span>
                 </div>
             </div>
-            @endforeach
-        </div>
 
+            <!-- Content Section with Enhanced Typography -->
+            <div class="p-6 flex-1 flex flex-col justify-between relative">
+                <!-- Decorative Element -->
+                <div class="absolute top-0 left-6 w-12 h-1 bg-gradient-to-r from-[#1D293D] to-purple-600 rounded-full transform -translate-y-1"></div>
 
-        <!-- No Products Found -->
-        <div id="noProductsFound" class="text-center py-20 hidden">
-            <div class="bg-white/90 backdrop-blur-sm rounded-3xl p-12 shadow-xl border border-white/50 max-w-2xl mx-auto">
-                <div class="mb-6">
-                    <i class="fas fa-search text-6xl text-gray-400 mb-4"></i>
-                    <h3 class="text-2xl font-bold text-gray-800 mb-2">No Products Found</h3>
-                    <p class="text-gray-600 text-lg">Sorry, we couldn't find any products in this category.</p>
+                <div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-900 group-hover:text-[#1D293D] transition-colors duration-300 line-clamp-2 leading-tight mb-2">
+                            {{ $product->name }}
+                        </h3>
+                        <!-- Rating Stars -->
+                        <div class="flex items-center space-x-1 mb-2">
+                            @for($i = 1; $i <= 5; $i++)
+                                <i class="fas fa-star text-yellow-400 text-[10px]"></i>
+                                @endfor
+                                <span class="text-gray-500 text-sm ml-2">(4.8)</span>
+                        </div>
+                    </div>
+
+                    <!-- Enhanced Price Section -->
+                    <div class="mb-3">
+                        <div class="flex items-baseline justify-between">
+                            <div class="flex items-baseline space-x-3">
+                                <span class=" text-xl font-black text-[#1D293D]">TK{{ number_format($product->amount ?? 0) }}</span>
+                                @if($product->original_price)
+                                <span class="text-gray-400 line-through text-lg">TK{{ number_format($product->original_price) }}</span>
+                                @endif
+                            </div>
+                            <div class="text-right">
+                                <span class="text-green-600 text-sm font-semibold">Save 20%</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <button onclick="filterByCategory('all')" class="inline-flex items-center space-x-2 px-8 py-3 bg-gradient-to-r from-[#1D293D] to-[#243447] text-white rounded-xl font-semibold hover:from-[#ec4642] hover:to-[#d63031] transition-all shadow-lg">
-                    <i class="fas fa-arrow-left"></i>
-                    <span>View All Products</span>
+
+                <!-- Enhanced CTA Button -->
+                @if($product->available_stock > 0)
+                <button class="add-to-cart-btn relative w-full bg-gradient-to-r from-[#1D293D] to-[#2a3f57] text-white py-3 rounded-2xl font-bold text-lg hover:from-[#ec4642] hover:to-[#c0392b] transition-all group/btn"
+                    data-product-id="{{ $product->id }}"
+                    data-product-name="{{ $product->name }}"
+                    data-product-price="{{ $product->amount }}"
+                    data-product-stock="{{ $product->available_stock }}">
+
+                    <!-- Button Content -->
+                    <span class="relative flex items-center justify-center space-x-3">
+                        <i class="fas fa-shopping-cart text-lg transform group-hover/btn:scale-110 transition-transform duration-300"></i>
+                        <span class="transform group-hover/btn:scale-105 transition-transform duration-300">Add to Cart</span>
+                        <i class="fas fa-arrow-right transform translate-x-0 group-hover/btn:translate-x-1 transition-transform duration-300"></i>
+                    </span>
+
+                    <!-- Shimmer Effect -->
+                    <div class="absolute inset-0 -top-full bg-gradient-to-b from-transparent via-white/20 to-transparent transform rotate-12 group-hover/btn:animate-shimmer"></div>
                 </button>
+                <div class="mt-2 text-center">
+                    <div class="bg-green-50 px-3 py-1 rounded-full inline-block">
+                        <span class="text-sm text-green-700 font-semibold">
+                            <i class="fas fa-check-circle mr-1"></i>Stock: {{ $product->stock }}
+                        </span>
+                    </div>
+                </div>
+                @else
+                <button disabled class="relative w-full bg-gray-400 text-gray-700 py-3 rounded-2xl font-bold text-lg cursor-not-allowed opacity-60 pointer-events-none border-2 border-gray-300">
+                    <span class="relative flex items-center justify-center space-x-3">
+                        <i class="fas fa-ban text-lg"></i>
+                        <span>Out of Stock</span>
+                    </span>
+                    <!-- Strikethrough effect -->
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="w-3/4 h-0.5 bg-red-500 transform rotate-12 opacity-50"></div>
+                    </div>
+                </button>
+                <div class="mt-2 text-center">
+                    <div class="bg-red-50 px-3 py-1 rounded-full inline-block">
+                        <span class="text-sm text-red-600 font-bold">
+                            <i class="fas fa-times-circle mr-1"></i>Out of Stock
+                        </span>
+                    </div>
+                </div>
+                @endif
             </div>
         </div>
+    </div>
+    @endforeach
+    </div>
+
+
+    <!-- No Products Found -->
+    <div id="noProductsFound" class="text-center py-20 hidden">
+        <div class="bg-white/90 backdrop-blur-sm rounded-3xl p-12 shadow-xl border border-white/50 max-w-2xl mx-auto">
+            <div class="mb-6">
+                <i class="fas fa-search text-6xl text-gray-400 mb-4"></i>
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">No Products Found</h3>
+                <p class="text-gray-600 text-lg">Sorry, we couldn't find any products in this category.</p>
+            </div>
+            <button onclick="filterByCategory('all')" class="inline-flex items-center space-x-2 px-8 py-3 bg-gradient-to-r from-[#1D293D] to-[#243447] text-white rounded-xl font-semibold hover:from-[#ec4642] hover:to-[#d63031] transition-all shadow-lg">
+                <i class="fas fa-arrow-left"></i>
+                <span>View All Products</span>
+            </button>
+        </div>
+    </div>
 
     </div>
 </section>
@@ -314,48 +317,62 @@
 </div>
 
 
-    <!-- Custom CSS for Sports Section -->
-    <style>
-        /* Animated border glow */
-        @keyframes shimmer {
-            0% { transform: translateX(-100%) rotate(12deg); }
-            100% { transform: translateX(300%) rotate(12deg); }
+<!-- Custom CSS for Sports Section -->
+<style>
+    /* Animated border glow */
+    @keyframes shimmer {
+        0% {
+            transform: translateX(-100%) rotate(12deg);
         }
-        .animate-shimmer {
-            animation: shimmer 0.8s ease-out;
+
+        100% {
+            transform: translateX(300%) rotate(12deg);
         }
-        .product-card:hover {
-            box-shadow: 0 25px 50px -12px rgba(249, 115, 22, 0.25);
-        }
-        .line-clamp-2 {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            line-clamp: 2;
-        }
-        #quickViewModal {
-            backdrop-filter: blur(4px);
-        }
-        #quickViewModal .bg-white {
-            scrollbar-width: thin;
-            scrollbar-color: #cbd5e0 #f7fafc;
-        }
-        #quickViewModal .bg-white::-webkit-scrollbar {
-            width: 6px;
-        }
-        #quickViewModal .bg-white::-webkit-scrollbar-track {
-            background: #f7fafc;
-            border-radius: 3px;
-        }
-        #quickViewModal .bg-white::-webkit-scrollbar-thumb {
-            background: #cbd5e0;
-            border-radius: 3px;
-        }
-        #quickViewModal .bg-white::-webkit-scrollbar-thumb:hover {
-            background: #a0aec0;
-        }
-    </style>
+    }
+
+    .animate-shimmer {
+        animation: shimmer 0.8s ease-out;
+    }
+
+    .product-card:hover {
+        box-shadow: 0 25px 50px -12px rgba(249, 115, 22, 0.25);
+    }
+
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-clamp: 2;
+    }
+
+    #quickViewModal {
+        backdrop-filter: blur(4px);
+    }
+
+    #quickViewModal .bg-white {
+        scrollbar-width: thin;
+        scrollbar-color: #cbd5e0 #f7fafc;
+    }
+
+    #quickViewModal .bg-white::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    #quickViewModal .bg-white::-webkit-scrollbar-track {
+        background: #f7fafc;
+        border-radius: 3px;
+    }
+
+    #quickViewModal .bg-white::-webkit-scrollbar-thumb {
+        background: #cbd5e0;
+        border-radius: 3px;
+    }
+
+    #quickViewModal .bg-white::-webkit-scrollbar-thumb:hover {
+        background: #a0aec0;
+    }
+</style>
 
 <script>
     // Global variables
@@ -504,7 +521,10 @@
             productName = titleElement ? titleElement.innerText.trim() : 'Product';
         }
 
-        console.log('Adding to wishlist:', { productId, productName });
+        console.log('Adding to wishlist:', {
+            productId,
+            productName
+        });
         showMessage(`❤️ Added "${productName}" to wishlist!`, 'info');
     }
 
@@ -521,9 +541,9 @@
                 <span>${message}</span>
             </div>
         `;
-        
+
         document.body.appendChild(alert);
-        
+
         setTimeout(() => {
             if (alert) {
                 alert.style.transform = 'translateX(100%)';

@@ -44,13 +44,22 @@
                                 $lineTotal = $quantity * $price;
                                 $subtotal += $lineTotal;
                             @endphp
-                            <tr class="align-middle" data-product-id="{{ $product?->id ?? $item['product_id'] }}">
+                            <tr class="align-middle" data-product-id="{{ $product?->id ?? $item['product_id'] }}" data-stock="{{ $product?->stock ?? 0 }}">
                                 <td class="py-4">
                                     <div class="flex items-center gap-4">
                                         <img src="{{ $product?->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/64x64/f8fafc/64748b?text=No+Image' }}" alt="{{ $product?->name }}" class="w-16 h-16 object-cover rounded-lg border">
                                         <div>
                                             <div class="font-semibold text-[#1D293D] text-base">{{ $product?->name }}</div>
                                             <div class="text-xs text-gray-400 mt-1">{{ $product?->category?->name ?? '' }}</div>
+                                            @if($product?->stock ?? 0 > 0)
+                                                <div class="text-xs text-green-600 mt-1">
+                                                    <i class="fas fa-check-circle"></i> {{ $product?->stock ?? 0 }} in stock
+                                                </div>
+                                            @else
+                                                <div class="text-xs text-red-600 mt-1">
+                                                    <i class="fas fa-exclamation-triangle"></i> Out of stock
+                                                </div>
+                                            @endif
                                             @if(isset($item['options']) && !empty($item['options']))
                                                 <div class="text-xs text-gray-500 mt-1">
                                                     @foreach($item['options'] as $key => $value)
@@ -67,8 +76,11 @@
                                         <button class="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-[#ec4642] hover:text-white text-[#1D293D] rounded transition-all duration-200 text-base decrement-btn" data-product-id="{{ $product?->id ?? $item['product_id'] }}" @if($quantity <= 1) disabled @endif>
                                             <i class="fas fa-minus"></i>
                                         </button>
-                                        <span class="px-3 py-1 border rounded text-base font-semibold min-w-[2.5rem] text-center">{{ $quantity }}</span>
-                                        <button class="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-[#ec4642] hover:text-white text-[#1D293D] rounded transition-all duration-200 text-base increment-btn" data-product-id="{{ $product?->id ?? $item['product_id'] }}">
+                                        <span class="px-3 py-1 border rounded text-base font-semibold min-w-[2.5rem] text-center quantity-display">{{ $quantity }}</span>
+                                        <button class="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-[#ec4642] hover:text-white text-[#1D293D] rounded transition-all duration-200 text-base increment-btn" 
+                                                data-product-id="{{ $product?->id ?? $item['product_id'] }}" 
+                                                data-stock="{{ $product?->stock ?? 0 }}" 
+                                                @if($quantity >= ($product?->stock ?? 0)) disabled title="Maximum stock reached" @endif>
                                             <i class="fas fa-plus"></i>
                                         </button>
                                     </div>
@@ -101,13 +113,7 @@
                     <span class="text-gray-500">Items</span>
                     <span class="font-semibold" id="summaryItemCount">{{ $itemCount }}</span>
                 </div>
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-gray-500">Delivery Option</span>
-                    <select class="border rounded px-2 py-1 text-sm text-gray-700 bg-white">
-                        <option>Cash On Delivery</option>
-                        <option>Online Payment</option>
-                    </select>
-                </div>
+                
                 <div class="border-t border-gray-200 my-4"></div>
                 <div class="flex justify-between items-center mb-2">
                     <span class="font-semibold text-lg text-[#1D293D]">Total Cost</span>
@@ -119,11 +125,81 @@
     </div>
 </div>
 
+<!-- Stock Alert Modal -->
+<div id="stockAlert" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+    <div class="fixed inset-0 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-95" id="stockAlertModal">
+            <div class="p-6 text-center">
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Stock Limit Reached</h3>
+                <p class="text-gray-600 mb-6" id="stockAlertMessage">
+                    Sorry, we only have <span id="availableStock">0</span> units available for this product.
+                </p>
+                <div class="flex gap-3 justify-center">
+                    <button onclick="closeStockAlert()" class="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors duration-200 font-medium">
+                        OK
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
+        // Stock alert popup functions
+        function showStockAlert(availableStock, productName = '') {
+            const modal = document.getElementById('stockAlert');
+            const modalContent = document.getElementById('stockAlertModal');
+            const stockSpan = document.getElementById('availableStock');
+            const message = document.getElementById('stockAlertMessage');
+            
+            stockSpan.textContent = availableStock;
+            if (productName) {
+                message.innerHTML = `Sorry, we only have <span class="font-semibold">${availableStock}</span> units available for <span class="font-semibold">${productName}</span>.`;
+            }
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95');
+                modalContent.classList.add('scale-100');
+            }, 10);
+        }
+
+        window.closeStockAlert = function() {
+            const modal = document.getElementById('stockAlert');
+            const modalContent = document.getElementById('stockAlertModal');
+            
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('stockAlert').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeStockAlert();
+            }
+        });
+
         function updateCart(productId, quantity) {
+            // Get the row element to access stock data
+            const row = document.querySelector(`tr[data-product-id="${productId}"]`);
+            const availableStock = parseInt(row.getAttribute('data-stock')) || 0;
+            const productName = row.querySelector('.font-semibold').textContent;
+            
+            // Check stock before updating
+            if (quantity > availableStock) {
+                showStockAlert(availableStock, productName);
+                return;
+            }
+
             fetch("{{ route('cart.update') }}", {
                 method: 'POST',
                 headers: {
@@ -136,7 +212,12 @@
             .then(data => {
                 if (data.success) {
                     location.reload();
+                } else if (data.message && data.message.includes('stock')) {
+                    showStockAlert(availableStock, productName);
                 }
+            })
+            .catch(error => {
+                console.error('Error updating cart:', error);
             });
         }
 
@@ -157,24 +238,75 @@
             });
         }
 
+        // Update button states based on stock
+        function updateButtonStates() {
+            document.querySelectorAll('tr[data-product-id]').forEach(row => {
+                const stock = parseInt(row.getAttribute('data-stock')) || 0;
+                const quantitySpan = row.querySelector('.quantity-display');
+                const currentQuantity = parseInt(quantitySpan.textContent) || 0;
+                const incrementBtn = row.querySelector('.increment-btn');
+                const decrementBtn = row.querySelector('.decrement-btn');
+                
+                // Update increment button state
+                if (currentQuantity >= stock) {
+                    incrementBtn.disabled = true;
+                    incrementBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    incrementBtn.title = 'Maximum stock reached';
+                } else {
+                    incrementBtn.disabled = false;
+                    incrementBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    incrementBtn.title = '';
+                }
+                
+                // Update decrement button state
+                if (currentQuantity <= 1) {
+                    decrementBtn.disabled = true;
+                    decrementBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                } else {
+                    decrementBtn.disabled = false;
+                    decrementBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            });
+        }
+
+        // Initialize button states
+        updateButtonStates();
+
         document.querySelectorAll('.increment-btn').forEach(btn => {
             btn.addEventListener('click', function() {
+                if (this.disabled) return;
+                
                 const productId = this.getAttribute('data-product-id');
+                const stock = parseInt(this.getAttribute('data-stock')) || 0;
                 const row = this.closest('tr');
-                const qtySpan = row.querySelector('span');
+                const qtySpan = row.querySelector('.quantity-display');
                 let quantity = parseInt(qtySpan.textContent.trim()) || 1;
+                
+                if (quantity >= stock) {
+                    const productName = row.querySelector('.font-semibold').textContent;
+                    showStockAlert(stock, productName);
+                    return;
+                }
+                
                 updateCart(productId, quantity + 1);
             });
         });
+
         document.querySelectorAll('.decrement-btn').forEach(btn => {
             btn.addEventListener('click', function() {
+                if (this.disabled) return;
+                
                 const productId = this.getAttribute('data-product-id');
                 const row = this.closest('tr');
-                const qtySpan = row.querySelector('span');
+                const qtySpan = row.querySelector('.quantity-display');
                 let quantity = parseInt(qtySpan.textContent.trim()) || 1;
-                if (quantity > 1) updateCart(productId, quantity - 1);
+                
+                if (quantity > 1) {
+                    updateCart(productId, quantity - 1);
+                }
             });
         });
+
         document.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 e.preventDefault();
